@@ -17,26 +17,87 @@ class PaymentController extends Controller
      */
     public function index(Request $request)
     {
+        // Validate filter parameters
+        $request->validate([
+            'status' => 'nullable|in:pending,overdue,completed',
+            'month' => 'nullable|integer|min:1|max:12',
+            'year' => 'nullable|integer|min:2020|max:' . (date('Y') + 5),
+        ]);
+
         $query = Payment::with(['project', 'client', 'assignedUser']);
 
-        // Filter by status
+        // Default filter: current month and year if no filters are applied
+        $month = $request->get('month', date('n')); // Current month as default
+        $year = $request->get('year', date('Y'));   // Current year as default
+
+        // Apply month filter (always applied with default)
+        if ($month) {
+            $query->whereMonth('due_date', $month);
+        }
+
+        // Apply year filter (always applied with default)
+        if ($year) {
+            $query->whereYear('due_date', $year);
+        }
+
+        // Filter by status (optional)
         if ($request->has('status') && $request->status !== '') {
             $query->where('status', $request->status);
         }
 
-        // Filter by month
+        $payments = $query->orderBy('due_date', 'desc')->paginate(15);
+
+        // For AJAX requests, return only the table content
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('payments.partials.table', compact('payments'))->render(),
+                'pagination' => view('payments.partials.pagination', compact('payments'))->render(),
+                'total' => $payments->total(),
+                'current_page' => $payments->currentPage(),
+                'last_page' => $payments->lastPage(),
+            ]);
+        }
+
+        return view('payments.index', compact('payments'));
+    }
+
+    /**
+     * Get filtered payments via AJAX
+     */
+    public function filter(Request $request)
+    {
+        // Validate filter parameters
+        $request->validate([
+            'status' => 'nullable|in:pending,overdue,completed',
+            'month' => 'nullable|integer|min:1|max:12',
+            'year' => 'nullable|integer|min:2020|max:' . (date('Y') + 5),
+            'page' => 'nullable|integer|min:1',
+        ]);
+
+        $query = Payment::with(['project', 'client', 'assignedUser']);
+
+        // Apply filters
         if ($request->has('month') && $request->month !== '') {
             $query->whereMonth('due_date', $request->month);
         }
 
-        // Filter by year
         if ($request->has('year') && $request->year !== '') {
             $query->whereYear('due_date', $request->year);
         }
 
+        if ($request->has('status') && $request->status !== '') {
+            $query->where('status', $request->status);
+        }
+
         $payments = $query->orderBy('due_date', 'desc')->paginate(15);
 
-        return view('payments.index', compact('payments'));
+        return response()->json([
+            'html' => view('payments.partials.table', compact('payments'))->render(),
+            'pagination' => view('payments.partials.pagination', compact('payments'))->render(),
+            'total' => $payments->total(),
+            'current_page' => $payments->currentPage(),
+            'last_page' => $payments->lastPage(),
+        ]);
     }
 
     /**

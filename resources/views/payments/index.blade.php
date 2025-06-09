@@ -21,9 +21,10 @@
             </div>
 
             <!-- Filters -->
-            <form method="GET" class="flex flex-wrap gap-4">
+            <div class="flex flex-wrap gap-4 items-center">
                 <div>
-                    <select name="status" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Stato</label>
+                    <select id="status-filter" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Tutti gli stati</option>
                         <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>In Attesa</option>
                         <option value="overdue" {{ request('status') === 'overdue' ? 'selected' : '' }}>Scaduto</option>
@@ -31,35 +32,49 @@
                     </select>
                 </div>
                 <div>
-                    <select name="month" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tutti i mesi</option>
-                        @for($i = 1; $i <= 12; $i++)
-                            <option value="{{ $i }}" {{ request('month') == $i ? 'selected' : '' }}>
-                                {{ DateTime::createFromFormat('!m', $i)->format('F') }}
+                    <label for="month-filter" class="block text-sm font-medium text-gray-700 mb-1">Mese</label>
+                    <select id="month-filter" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        @php
+                            $currentMonth = request('month', date('n'));
+                            $italianMonths = [
+                                1 => 'Gennaio', 2 => 'Febbraio', 3 => 'Marzo', 4 => 'Aprile',
+                                5 => 'Maggio', 6 => 'Giugno', 7 => 'Luglio', 8 => 'Agosto',
+                                9 => 'Settembre', 10 => 'Ottobre', 11 => 'Novembre', 12 => 'Dicembre'
+                            ];
+                        @endphp
+                        @foreach($italianMonths as $monthNum => $monthName)
+                            <option value="{{ $monthNum }}" {{ $currentMonth == $monthNum ? 'selected' : '' }}>
+                                {{ $monthName }}
                             </option>
-                        @endfor
+                        @endforeach
                     </select>
                 </div>
                 <div>
-                    <select name="year" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tutti gli anni</option>
+                    <label for="year-filter" class="block text-sm font-medium text-gray-700 mb-1">Anno</label>
+                    <select id="year-filter" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        @php $currentYear = request('year', date('Y')); @endphp
                         @for($year = date('Y'); $year >= date('Y') - 5; $year--)
-                            <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                            <option value="{{ $year }}" {{ $currentYear == $year ? 'selected' : '' }}>{{ $year }}</option>
                         @endfor
                     </select>
                 </div>
-                <button type="submit" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
-                    Filtra
-                </button>
-                <a href="{{ route('payments.index') }}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
-                    Reset
-                </a>
-            </form>
+                <div class="flex items-end">
+                    <button id="reset-filters" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors duration-200">
+                        <i class="fas fa-undo mr-2"></i>Reset
+                    </button>
+                </div>
+
+                <!-- Loading indicator -->
+                <div id="loading-indicator" class="hidden items-center">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    <span class="ml-2 text-sm text-gray-600">Caricamento...</span>
+                </div>
+            </div>
         </div>
 
         <!-- Payments Table -->
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table id="payments-table" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -85,127 +100,155 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($payments as $payment)
-                        <tr class="hover:bg-gray-50 {{ $payment->isOverdue() ? 'bg-red-50' : '' }}">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">
-                                    {{ $payment->project->name }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $payment->client->full_name }}</div>
-                                <div class="text-sm text-gray-500">{{ $payment->client->email }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">€{{ number_format($payment->amount, 2) }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $payment->due_date->format('d/m/Y') }}</div>
-                                @if($payment->paid_date)
-                                    <div class="text-sm text-green-600">Pagato: {{ $payment->paid_date->format('d/m/Y') }}</div>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full
-                                    @if($payment->status === 'completed') bg-green-100 text-green-800
-                                    @elseif($payment->status === 'overdue' || $payment->isOverdue()) bg-red-100 text-red-800
-                                    @else bg-yellow-100 text-yellow-800 @endif">
-                                    @if($payment->isOverdue() && $payment->status === 'pending')
-                                        Scaduto
-                                    @else
-                                        {{ App\Models\Payment::getStatuses()[$payment->status] ?? $payment->status }}
-                                    @endif
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                                    {{ App\Models\Payment::getPaymentTypes()[$payment->payment_type] ?? $payment->payment_type }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex justify-end space-x-2">
-                                    @if($payment->status === 'completed')
-                                        @can('generate invoices')
-                                        <a href="{{ route('payments.invoice', $payment) }}"
-                                           class="inline-flex items-center px-2 py-1 text-xs text-white rounded transition-colors duration-200"
-                                           style="background-color: #28a745;"
-                                           onmouseover="this.style.backgroundColor='#218838'"
-                                           onmouseout="this.style.backgroundColor='#28a745'"
-                                           title="Scarica Fattura PDF">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </a>
-                                        @endcan
-                                        @can('send emails')
-                                        <form action="{{ route('payments.send-invoice', $payment) }}" method="POST" class="inline">
-                                            @csrf
-                                            <button type="submit"
-                                                    class="inline-flex items-center px-2 py-1 text-xs text-white rounded transition-colors duration-200"
-                                                    style="background-color: #007BCE;"
-                                                    onmouseover="this.style.backgroundColor='#005B99'"
-                                                    onmouseout="this.style.backgroundColor='#007BCE'"
-                                                    title="Invia Fattura via Email">
-                                                <i class="fas fa-envelope"></i>
-                                            </button>
-                                        </form>
-                                        @endcan
-                                    @endif
-                                    @if($payment->status === 'pending')
-                                        <form action="{{ route('payments.mark-completed', $payment) }}"
-                                              method="POST"
-                                              class="inline">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit"
-                                                    class="text-green-600 hover:text-green-900"
-                                                    title="Segna come completato">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        </form>
-                                    @endif
-                                    <a href="{{ route('payments.show', $payment) }}"
-                                       class="text-blue-600 hover:text-blue-900"
-                                       title="Visualizza dettagli">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ route('payments.edit', $payment) }}"
-                                       class="text-yellow-600 hover:text-yellow-900"
-                                       title="Modifica">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form action="{{ route('payments.destroy', $payment) }}"
-                                          method="POST"
-                                          class="inline"
-                                          onsubmit="return confirm('Sei sicuro di voler eliminare questo pagamento?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="text-red-600 hover:text-red-900"
-                                                title="Elimina">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                                <i class="fas fa-credit-card text-4xl mb-4 text-gray-300"></i>
-                                <p class="text-lg">Nessun pagamento trovato</p>
-                                <p class="text-sm">Inizia aggiungendo il tuo primo pagamento</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
+                @include('payments.partials.table')
             </table>
         </div>
 
         <!-- Pagination -->
-        @if($payments->hasPages())
-            <div class="px-6 py-4 border-t border-gray-200">
-                {{ $payments->appends(request()->query())->links('pagination.custom') }}
-            </div>
-        @endif
+        <div id="pagination-container">
+            @include('payments.partials.pagination')
+        </div>
     </div>
+
+    <!-- JavaScript for Dynamic Filters -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusFilter = document.getElementById('status-filter');
+            const monthFilter = document.getElementById('month-filter');
+            const yearFilter = document.getElementById('year-filter');
+            const resetButton = document.getElementById('reset-filters');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const paymentsTable = document.getElementById('payments-table');
+            const paginationContainer = document.getElementById('pagination-container');
+
+            // Function to show loading state
+            function showLoading() {
+                loadingIndicator.classList.remove('hidden');
+                loadingIndicator.classList.add('flex');
+                paymentsTable.style.opacity = '0.5';
+            }
+
+            // Function to hide loading state
+            function hideLoading() {
+                loadingIndicator.classList.add('hidden');
+                loadingIndicator.classList.remove('flex');
+                paymentsTable.style.opacity = '1';
+            }
+
+            // Function to apply filters
+            function applyFilters(page = 1) {
+                showLoading();
+
+                const params = new URLSearchParams({
+                    status: statusFilter.value,
+                    month: monthFilter.value,
+                    year: yearFilter.value,
+                    page: page
+                });
+
+                // Update URL without page reload
+                const newUrl = `${window.location.pathname}?${params.toString()}`;
+                window.history.pushState({}, '', newUrl);
+
+                // Make AJAX request
+                fetch(`{{ route('payments.filter') }}?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Update table content
+                    const tbody = paymentsTable.querySelector('tbody');
+                    tbody.outerHTML = data.html;
+
+                    // Update pagination
+                    paginationContainer.innerHTML = data.pagination;
+
+                    // Re-attach pagination event listeners
+                    attachPaginationListeners();
+
+                    hideLoading();
+
+                    // Show success feedback briefly
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded z-50 transition-opacity duration-300';
+                    successDiv.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-check mr-2"></i>
+                            <span>Filtri applicati (${data.total} risultati)</span>
+                        </div>
+                    `;
+                    document.body.appendChild(successDiv);
+
+                    // Auto-remove after 2 seconds
+                    setTimeout(() => {
+                        successDiv.style.opacity = '0';
+                        setTimeout(() => {
+                            if (successDiv.parentElement) {
+                                successDiv.remove();
+                            }
+                        }, 300);
+                    }, 2000);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    hideLoading();
+
+                    // Show user-friendly error message
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50';
+                    errorDiv.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <span>Errore durante il caricamento dei dati. Riprova.</span>
+                            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-red-500 hover:text-red-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    document.body.appendChild(errorDiv);
+
+                    // Auto-remove after 5 seconds
+                    setTimeout(() => {
+                        if (errorDiv.parentElement) {
+                            errorDiv.remove();
+                        }
+                    }, 5000);
+                });
+            }
+
+            // Function to attach pagination event listeners
+            function attachPaginationListeners() {
+                const paginationLinks = paginationContainer.querySelectorAll('.pagination-link');
+                paginationLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const page = this.getAttribute('data-page');
+                        if (page) {
+                            applyFilters(page);
+                        }
+                    });
+                });
+            }
+
+            // Event listeners for filters
+            statusFilter.addEventListener('change', () => applyFilters());
+            monthFilter.addEventListener('change', () => applyFilters());
+            yearFilter.addEventListener('change', () => applyFilters());
+
+            // Reset filters
+            resetButton.addEventListener('click', function() {
+                statusFilter.value = '';
+                monthFilter.value = '{{ date("n") }}'; // Current month
+                yearFilter.value = '{{ date("Y") }}';  // Current year
+                applyFilters();
+            });
+
+            // Initial pagination listeners
+            attachPaginationListeners();
+        });
+    </script>
 </x-app-layout>

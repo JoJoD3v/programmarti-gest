@@ -32,6 +32,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Payment Management Routes
     Route::resource('payments', PaymentController::class)->middleware('permission:manage payments');
+    Route::get('payments-filter', [PaymentController::class, 'filter'])
+        ->name('payments.filter')
+        ->middleware('permission:manage payments');
     Route::patch('payments/{payment}/mark-completed', [PaymentController::class, 'markCompleted'])
         ->name('payments.mark-completed')
         ->middleware('permission:manage payments');
