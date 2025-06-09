@@ -26,17 +26,26 @@ class PaymentController extends Controller
 
         $query = Payment::with(['project', 'client', 'assignedUser']);
 
-        // Default filter: current month and year if no filters are applied
-        $month = $request->get('month', date('n')); // Current month as default
-        $year = $request->get('year', date('Y'));   // Current year as default
+        // Apply default filters only if no specific filters are provided
+        $hasFilters = $request->has('month') || $request->has('year') || $request->has('status');
 
-        // Apply month filter (always applied with default)
-        if ($month) {
+        // Default filter: current month and year if no filters are applied
+        $month = $request->get('month');
+        $year = $request->get('year');
+
+        // If no filters are provided, default to current month and year
+        if (!$hasFilters) {
+            $month = date('n'); // Current month
+            $year = date('Y');  // Current year
+        }
+
+        // Apply month filter
+        if ($month !== null && $month !== '') {
             $query->whereMonth('due_date', $month);
         }
 
-        // Apply year filter (always applied with default)
-        if ($year) {
+        // Apply year filter
+        if ($year !== null && $year !== '') {
             $query->whereYear('due_date', $year);
         }
 
@@ -76,17 +85,24 @@ class PaymentController extends Controller
 
         $query = Payment::with(['project', 'client', 'assignedUser']);
 
-        // Apply filters
-        if ($request->has('month') && $request->month !== '') {
-            $query->whereMonth('due_date', $request->month);
+        // Apply filters consistently with index method
+        $month = $request->get('month');
+        $year = $request->get('year');
+        $status = $request->get('status');
+
+        // Apply month filter
+        if ($month !== null && $month !== '') {
+            $query->whereMonth('due_date', $month);
         }
 
-        if ($request->has('year') && $request->year !== '') {
-            $query->whereYear('due_date', $request->year);
+        // Apply year filter
+        if ($year !== null && $year !== '') {
+            $query->whereYear('due_date', $year);
         }
 
-        if ($request->has('status') && $request->status !== '') {
-            $query->where('status', $request->status);
+        // Apply status filter
+        if ($status !== null && $status !== '') {
+            $query->where('status', $status);
         }
 
         $payments = $query->orderBy('due_date', 'desc')->paginate(15);

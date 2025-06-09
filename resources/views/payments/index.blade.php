@@ -35,13 +35,18 @@
                     <label for="month-filter" class="block text-sm font-medium text-gray-700 mb-1">Mese</label>
                     <select id="month-filter" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         @php
-                            $currentMonth = request('month', date('n'));
+                            $currentMonth = request('month');
+                            $hasFilters = request()->has('month') || request()->has('year') || request()->has('status');
+                            if (!$hasFilters && $currentMonth === null) {
+                                $currentMonth = date('n'); // Default to current month only if no filters
+                            }
                             $italianMonths = [
                                 1 => 'Gennaio', 2 => 'Febbraio', 3 => 'Marzo', 4 => 'Aprile',
                                 5 => 'Maggio', 6 => 'Giugno', 7 => 'Luglio', 8 => 'Agosto',
                                 9 => 'Settembre', 10 => 'Ottobre', 11 => 'Novembre', 12 => 'Dicembre'
                             ];
                         @endphp
+                        <option value="" {{ $currentMonth === null || $currentMonth === '' ? 'selected' : '' }}>Tutti i mesi</option>
                         @foreach($italianMonths as $monthNum => $monthName)
                             <option value="{{ $monthNum }}" {{ $currentMonth == $monthNum ? 'selected' : '' }}>
                                 {{ $monthName }}
@@ -52,7 +57,13 @@
                 <div>
                     <label for="year-filter" class="block text-sm font-medium text-gray-700 mb-1">Anno</label>
                     <select id="year-filter" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        @php $currentYear = request('year', date('Y')); @endphp
+                        @php
+                            $currentYear = request('year');
+                            if (!$hasFilters && $currentYear === null) {
+                                $currentYear = date('Y'); // Default to current year only if no filters
+                            }
+                        @endphp
+                        <option value="" {{ $currentYear === null || $currentYear === '' ? 'selected' : '' }}>Tutti gli anni</option>
                         @for($year = date('Y'); $year >= date('Y') - 5; $year--)
                             <option value="{{ $year }}" {{ $currentYear == $year ? 'selected' : '' }}>{{ $year }}</option>
                         @endfor
@@ -139,19 +150,37 @@
             function applyFilters(page = 1) {
                 showLoading();
 
-                const params = new URLSearchParams({
+                const params = new URLSearchParams();
+
+                // Only add parameters if they have values
+                if (statusFilter.value !== '') {
+                    params.append('status', statusFilter.value);
+                }
+                if (monthFilter.value !== '') {
+                    params.append('month', monthFilter.value);
+                }
+                if (yearFilter.value !== '') {
+                    params.append('year', yearFilter.value);
+                }
+                if (page > 1) {
+                    params.append('page', page);
+                }
+
+                // Update URL without page reload
+                const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+                window.history.pushState({}, '', newUrl);
+
+                // Make AJAX request
+                const filterUrl = `{{ route('payments.filter') }}${params.toString() ? '?' + params.toString() : ''}`;
+                console.log('Filter URL:', filterUrl); // Debug log
+                console.log('Filters:', {
                     status: statusFilter.value,
                     month: monthFilter.value,
                     year: yearFilter.value,
                     page: page
-                });
+                }); // Debug log
 
-                // Update URL without page reload
-                const newUrl = `${window.location.pathname}?${params.toString()}`;
-                window.history.pushState({}, '', newUrl);
-
-                // Make AJAX request
-                fetch(`{{ route('payments.filter') }}?${params.toString()}`, {
+                fetch(filterUrl, {
                     method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
@@ -242,9 +271,11 @@
             // Reset filters
             resetButton.addEventListener('click', function() {
                 statusFilter.value = '';
-                monthFilter.value = '{{ date("n") }}'; // Current month
-                yearFilter.value = '{{ date("Y") }}';  // Current year
-                applyFilters();
+                monthFilter.value = '';  // All months
+                yearFilter.value = '';   // All years
+
+                // Clear URL parameters and redirect to show default view (current month/year)
+                window.location.href = window.location.pathname;
             });
 
             // Initial pagination listeners
