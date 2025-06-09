@@ -23,7 +23,7 @@
             <!-- Filters -->
             <form method="GET" class="flex flex-wrap gap-4">
                 <div>
-                    <select name="status" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="status" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Tutti gli stati</option>
                         <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>In Attesa</option>
                         <option value="overdue" {{ request('status') === 'overdue' ? 'selected' : '' }}>Scaduto</option>
@@ -31,7 +31,7 @@
                     </select>
                 </div>
                 <div>
-                    <select name="month" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="month" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Tutti i mesi</option>
                         @for($i = 1; $i <= 12; $i++)
                             <option value="{{ $i }}" {{ request('month') == $i ? 'selected' : '' }}>
@@ -41,7 +41,7 @@
                     </select>
                 </div>
                 <div>
-                    <select name="year" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="year" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Tutti gli anni</option>
                         @for($year = date('Y'); $year >= date('Y') - 5; $year--)
                             <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
@@ -204,7 +204,7 @@
         <!-- Pagination -->
         @if($payments->hasPages())
             <div class="px-6 py-4 border-t border-gray-200">
-                {{ $payments->appends(request()->query())->links() }}
+                {{ $payments->appends(request()->query())->links('pagination.custom') }}
             </div>
         @endif
     </div>

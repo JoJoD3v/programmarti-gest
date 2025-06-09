@@ -20,9 +20,9 @@
                         <label for="project_id" class="block text-sm font-medium text-gray-700 mb-2">
                             Progetto *
                         </label>
-                        <select id="project_id" 
-                                name="project_id" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('project_id') border-red-500 @enderror"
+                        <select id="project_id"
+                                name="project_id"
+                                class="select-improved w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('project_id') border-red-500 @enderror"
                                 required
                                 onchange="updateClient()">
                             <option value="">Seleziona progetto</option>
@@ -43,9 +43,9 @@
                         <label for="client_id" class="block text-sm font-medium text-gray-700 mb-2">
                             Cliente *
                         </label>
-                        <select id="client_id" 
-                                name="client_id" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('client_id') border-red-500 @enderror"
+                        <select id="client_id"
+                                name="client_id"
+                                class="select-improved w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('client_id') border-red-500 @enderror"
                                 required>
                             <option value="">Seleziona cliente</option>
                             @foreach($clients as $client)
@@ -101,9 +101,9 @@
                         <label for="payment_type" class="block text-sm font-medium text-gray-700 mb-2">
                             Tipo Pagamento *
                         </label>
-                        <select id="payment_type" 
-                                name="payment_type" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('payment_type') border-red-500 @enderror"
+                        <select id="payment_type"
+                                name="payment_type"
+                                class="select-improved w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('payment_type') border-red-500 @enderror"
                                 required>
                             @foreach(App\Models\Payment::getPaymentTypes() as $key => $type)
                                 <option value="{{ $key }}" {{ old('payment_type', 'one_time') === $key ? 'selected' : '' }}>

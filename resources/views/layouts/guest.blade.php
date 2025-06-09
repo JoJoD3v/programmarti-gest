@@ -7,6 +7,9 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
+        <!-- Favicon -->
+        <link rel="icon" type="image/jpeg" href="{{ asset('img/logo/LOGO.jpg') }}">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -16,9 +19,15 @@
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+            <div class="mb-4">
+                <a href="/" class="flex flex-col items-center">
+                    <div class="w-20 h-20 bg-white rounded-lg shadow-md flex items-center justify-center mb-3 overflow-hidden">
+                        <img src="{{ asset('img/logo/LOGO.jpg') }}" alt="ProgrammArti Logo" class="w-full h-full object-contain">
+                    </div>
+                    <div class="text-center">
+                        <h1 class="text-2xl font-bold text-primary">ProgrammArti</h1>
+                        <p class="text-sm text-gray-600">Gestionale</p>
+                    </div>
                 </a>
             </div>
 

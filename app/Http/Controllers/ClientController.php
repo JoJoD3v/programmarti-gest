@@ -10,9 +10,28 @@ class ClientController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $clients = Client::orderBy('created_at', 'desc')->paginate(10);
+        $query = Client::query();
+
+        // Search functionality
+        if ($request->has('search') && $request->search !== '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('tax_code', 'like', "%{$search}%")
+                  ->orWhere('vat_number', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by entity type
+        if ($request->has('entity_type') && $request->entity_type !== '') {
+            $query->where('entity_type', $request->entity_type);
+        }
+
+        $clients = $query->orderBy('created_at', 'desc')->paginate(15);
         return view('clients.index', compact('clients'));
     }
 

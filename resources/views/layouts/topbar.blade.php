@@ -10,23 +10,7 @@
 
         <!-- Right Side: User Profile and Actions -->
         <div class="flex items-center space-x-4">
-            <!-- Notifications -->
-            <div class="relative">
-                <button class="p-2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600">
-                    <i class="fas fa-bell text-lg"></i>
-                    <!-- Notification Badge -->
-                    @php
-                        $overduePayments = \App\Models\Payment::where('status', 'pending')
-                                                            ->where('due_date', '<', now()->subDays(20))
-                                                            ->count();
-                    @endphp
-                    @if($overduePayments > 0)
-                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                            {{ $overduePayments }}
-                        </span>
-                    @endif
-                </button>
-            </div>
+
 
             <!-- User Profile Dropdown -->
             <div class="relative" x-data="{ open: false }">

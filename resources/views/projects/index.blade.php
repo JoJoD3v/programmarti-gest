@@ -6,11 +6,11 @@
     </x-slot>
 
     <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-        <!-- Header with Add Button -->
+        <!-- Header with Search and Add Button -->
         <div class="p-6 border-b border-gray-200">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold text-gray-900">Lista Progetti</h2>
-                <a href="{{ route('projects.create') }}" 
+                <a href="{{ route('projects.create') }}"
                    class="text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 hover:opacity-90"
                    style="background-color: #007BCE;"
                    onmouseover="this.style.backgroundColor='#005B99'"
@@ -19,6 +19,43 @@
                     Aggiungi Progetto
                 </a>
             </div>
+
+            <!-- Search and Filters -->
+            <form method="GET" class="flex flex-wrap gap-4">
+                <div class="flex-1 min-w-64">
+                    <input type="text"
+                           name="search"
+                           value="{{ request('search') }}"
+                           placeholder="Cerca per nome progetto, descrizione o cliente..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <select name="status" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Tutti gli stati</option>
+                        <option value="planning" {{ request('status') === 'planning' ? 'selected' : '' }}>Pianificazione</option>
+                        <option value="in_progress" {{ request('status') === 'in_progress' ? 'selected' : '' }}>In Corso</option>
+                        <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completato</option>
+                        <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Annullato</option>
+                    </select>
+                </div>
+                <div>
+                    <select name="project_type" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Tutti i tipi</option>
+                        <option value="website" {{ request('project_type') === 'website' ? 'selected' : '' }}>Sito Web</option>
+                        <option value="ecommerce" {{ request('project_type') === 'ecommerce' ? 'selected' : '' }}>E-commerce</option>
+                        <option value="management_system" {{ request('project_type') === 'management_system' ? 'selected' : '' }}>Sistema Gestionale</option>
+                        <option value="marketing_campaign" {{ request('project_type') === 'marketing_campaign' ? 'selected' : '' }}>Campagna Marketing</option>
+                        <option value="social_media_management" {{ request('project_type') === 'social_media_management' ? 'selected' : '' }}>Gestione Social Media</option>
+                        <option value="nfc_accessories" {{ request('project_type') === 'nfc_accessories' ? 'selected' : '' }}>Accessori NFC</option>
+                    </select>
+                </div>
+                <button type="submit" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                    <i class="fas fa-search mr-2"></i>Cerca
+                </button>
+                <a href="{{ route('projects.index') }}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+                    Reset
+                </a>
+            </form>
         </div>
 
         <!-- Projects Table -->
@@ -137,7 +174,7 @@
         <!-- Pagination -->
         @if($projects->hasPages())
             <div class="px-6 py-4 border-t border-gray-200">
-                {{ $projects->links() }}
+                {{ $projects->appends(request()->query())->links('pagination.custom') }}
             </div>
         @endif
     </div>

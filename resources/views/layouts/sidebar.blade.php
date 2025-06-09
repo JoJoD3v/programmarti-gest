@@ -3,8 +3,8 @@
     <!-- Logo -->
     <div class="p-6 border-b border-white/10">
         <div class="flex items-center">
-            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3">
-                <i class="fas fa-code text-xl" style="color: #007BCE;"></i>
+            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3 overflow-hidden">
+                <img src="{{ asset('img/logo/LOGO.jpg') }}" alt="ProgrammArti Logo" class="w-full h-full object-contain">
             </div>
             <div>
                 <h2 class="text-white font-bold text-lg">ProgrammArti</h2>

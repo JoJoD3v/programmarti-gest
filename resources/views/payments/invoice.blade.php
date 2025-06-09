@@ -7,17 +7,17 @@
     <style>
         body {
             font-family: 'DejaVu Sans', sans-serif;
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 11px;
+            line-height: 1.3;
             color: #333;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
         }
-        
+
         .header {
             border-bottom: 3px solid #007BCE;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
         }
         
         .company-info {
@@ -77,8 +77,8 @@
         }
         
         .project-details {
-            margin: 30px 0;
-            padding: 20px;
+            margin: 15px 0;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 5px;
         }
@@ -103,8 +103,8 @@
         }
         
         .payment-summary {
-            margin: 30px 0;
-            padding: 20px;
+            margin: 15px 0;
+            padding: 12px;
             background-color: #f8f9fa;
             border-radius: 5px;
         }
@@ -131,8 +131,8 @@
         }
         
         .footer {
-            margin-top: 50px;
-            padding-top: 20px;
+            margin-top: 25px;
+            padding-top: 15px;
             border-top: 1px solid #ddd;
             text-align: center;
             color: #666;
@@ -154,8 +154,8 @@
         }
         
         .notes {
-            margin: 20px 0;
-            padding: 15px;
+            margin: 15px 0;
+            padding: 12px;
             background-color: #fff3cd;
             border-left: 4px solid #ffc107;
             border-radius: 0 5px 5px 0;
@@ -171,8 +171,15 @@
     <!-- Header -->
     <div class="header clearfix">
         <div class="company-info">
-            <div class="company-name">ProgrammArti</div>
-            <div class="company-tagline">Soluzioni Digitali Innovative</div>
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <div style="width: 40px; height: 40px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 15px; overflow: hidden;">
+                    <img src="{{ public_path('img/logo/LOGO.jpg') }}" alt="ProgrammArti Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                <div>
+                    <div class="company-name">ProgrammArti</div>
+                    <div class="company-tagline">Soluzioni Digitali Innovative</div>
+                </div>
+            </div>
             <div style="margin-top: 15px; font-size: 11px; color: #666;">
                 <strong>Indirizzo:</strong> Via Innovazione 123, 00100 Roma (RM)<br>
                 <strong>P.IVA:</strong> 12345678901<br>

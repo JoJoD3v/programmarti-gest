@@ -23,7 +23,7 @@
             <!-- Filters -->
             <form method="GET" class="flex flex-wrap gap-4">
                 <div>
-                    <select name="user_id" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="user_id" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Tutti gli utenti</option>
                         @foreach($users as $user)
                             <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
@@ -33,7 +33,7 @@
                     </select>
                 </div>
                 <div>
-                    <select name="category" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="category" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Tutte le categorie</option>
                         @foreach(App\Models\Expense::getCategories() as $key => $category)
                             <option value="{{ $key }}" {{ request('category') === $key ? 'selected' : '' }}>
@@ -43,7 +43,7 @@
                     </select>
                 </div>
                 <div>
-                    <select name="month" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="month" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Tutti i mesi</option>
                         @for($i = 1; $i <= 12; $i++)
                             <option value="{{ $i }}" {{ request('month') == $i ? 'selected' : '' }}>
@@ -53,7 +53,7 @@
                     </select>
                 </div>
                 <div>
-                    <select name="year" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="year" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Tutti gli anni</option>
                         @for($year = date('Y'); $year >= date('Y') - 5; $year--)
                             <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
@@ -179,7 +179,7 @@
         <!-- Pagination -->
         @if($expenses->hasPages())
             <div class="px-6 py-4 border-t border-gray-200">
-                {{ $expenses->appends(request()->query())->links() }}
+                {{ $expenses->appends(request()->query())->links('pagination.custom') }}
             </div>
         @endif
     </div>

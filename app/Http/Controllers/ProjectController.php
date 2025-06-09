@@ -14,11 +14,35 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $projects = Project::with(['client', 'assignedUser'])
-                          ->orderBy('created_at', 'desc')
-                          ->paginate(10);
+        $query = Project::with(['client', 'assignedUser']);
+
+        // Search functionality
+        if ($request->has('search') && $request->search !== '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhereHas('client', function($clientQuery) use ($search) {
+                      $clientQuery->where('first_name', 'like', "%{$search}%")
+                                  ->orWhere('last_name', 'like', "%{$search}%")
+                                  ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filter by status
+        if ($request->has('status') && $request->status !== '') {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by project type
+        if ($request->has('project_type') && $request->project_type !== '') {
+            $query->where('project_type', $request->project_type);
+        }
+
+        $projects = $query->orderBy('created_at', 'desc')->paginate(15);
         return view('projects.index', compact('projects'));
     }
 
