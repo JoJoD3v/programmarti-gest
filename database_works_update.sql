@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS `works` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `project_id` bigint(20) unsigned NOT NULL,
   `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
   `type` enum('Bug','Miglioramenti','Da fare') NOT NULL,
   `assigned_user_id` bigint(20) unsigned NOT NULL,
   `status` enum('In Sospeso','Completato') NOT NULL DEFAULT 'In Sospeso',
@@ -21,6 +22,9 @@ CREATE TABLE IF NOT EXISTS `works` (
   CONSTRAINT `works_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,
   CONSTRAINT `works_assigned_user_id_foreign` FOREIGN KEY (`assigned_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Add description column to existing works table (if table already exists)
+ALTER TABLE `works` ADD COLUMN `description` text DEFAULT NULL AFTER `name`;
 
 -- Add 'manage works' permission
 INSERT INTO `permissions` (`name`, `guard_name`, `created_at`, `updated_at`) 
@@ -47,46 +51,49 @@ ON DUPLICATE KEY UPDATE permission_id = permission_id;
 
 -- Sample works data (optional - only insert if you want sample data)
 -- Note: This assumes you have existing projects and users
-INSERT INTO `works` (`project_id`, `name`, `type`, `assigned_user_id`, `status`, `created_at`, `updated_at`) 
-SELECT 
+INSERT INTO `works` (`project_id`, `name`, `description`, `type`, `assigned_user_id`, `status`, `created_at`, `updated_at`)
+SELECT
     p.id as project_id,
     'Correzione bug nel modulo di login' as name,
+    'Gli utenti non riescono ad accedere al sistema quando inseriscono credenziali valide. Il problema sembra essere legato alla validazione delle sessioni.' as description,
     'Bug' as type,
     u.id as assigned_user_id,
     'Completato' as status,
     DATE_SUB(NOW(), INTERVAL 10 DAY) as created_at,
     DATE_SUB(NOW(), INTERVAL 5 DAY) as updated_at
-FROM projects p 
-CROSS JOIN users u 
-WHERE u.email = 'developer@programmarti.com' 
+FROM projects p
+CROSS JOIN users u
+WHERE u.email = 'developer@programmarti.com'
 LIMIT 1;
 
-INSERT INTO `works` (`project_id`, `name`, `type`, `assigned_user_id`, `status`, `created_at`, `updated_at`) 
-SELECT 
+INSERT INTO `works` (`project_id`, `name`, `description`, `type`, `assigned_user_id`, `status`, `created_at`, `updated_at`)
+SELECT
     p.id as project_id,
     'Implementazione sistema di notifiche' as name,
+    'Sviluppare un sistema completo di notifiche in tempo reale per informare gli utenti di eventi importanti.' as description,
     'Miglioramenti' as type,
     u.id as assigned_user_id,
     'In Sospeso' as status,
     DATE_SUB(NOW(), INTERVAL 8 DAY) as created_at,
     DATE_SUB(NOW(), INTERVAL 8 DAY) as updated_at
-FROM projects p 
-CROSS JOIN users u 
-WHERE u.email = 'developer@programmarti.com' 
+FROM projects p
+CROSS JOIN users u
+WHERE u.email = 'developer@programmarti.com'
 LIMIT 1;
 
-INSERT INTO `works` (`project_id`, `name`, `type`, `assigned_user_id`, `status`, `created_at`, `updated_at`) 
-SELECT 
+INSERT INTO `works` (`project_id`, `name`, `description`, `type`, `assigned_user_id`, `status`, `created_at`, `updated_at`)
+SELECT
     p.id as project_id,
     'Aggiunta sezione FAQ' as name,
+    'Creare una sezione FAQ completa per aiutare gli utenti a trovare risposte alle domande più comuni.' as description,
     'Da fare' as type,
     u.id as assigned_user_id,
     'In Sospeso' as status,
     DATE_SUB(NOW(), INTERVAL 4 DAY) as created_at,
     DATE_SUB(NOW(), INTERVAL 4 DAY) as updated_at
-FROM projects p 
-CROSS JOIN users u 
-WHERE u.email = 'designer@programmarti.com' 
+FROM projects p
+CROSS JOIN users u
+WHERE u.email = 'designer@programmarti.com'
 LIMIT 1;
 
 -- =====================================================

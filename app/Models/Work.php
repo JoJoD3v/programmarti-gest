@@ -12,6 +12,7 @@ class Work extends Model
     protected $fillable = [
         'project_id',
         'name',
+        'description',
         'type',
         'assigned_user_id',
         'status',

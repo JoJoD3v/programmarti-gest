@@ -85,6 +85,7 @@ class WorkController extends Controller
         $validated = $request->validate([
             'project_id' => 'required|exists:projects,id',
             'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:5000',
             'type' => 'required|in:Bug,Miglioramenti,Da fare',
             'assigned_user_id' => 'required|exists:users,id',
         ]);
@@ -126,6 +127,7 @@ class WorkController extends Controller
         $validated = $request->validate([
             'project_id' => 'required|exists:projects,id',
             'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:5000',
             'type' => 'required|in:Bug,Miglioramenti,Da fare',
             'assigned_user_id' => 'required|exists:users,id',
             'status' => 'required|in:In Sospeso,Completato',

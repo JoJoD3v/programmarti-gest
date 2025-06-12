@@ -40,6 +40,15 @@
                                 <p class="mt-1 text-sm text-gray-900">{{ $work->name }}</p>
                             </div>
 
+                            @if($work->description)
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Descrizione</label>
+                                <div class="mt-1 text-sm text-gray-900 bg-gray-50 p-3 rounded-lg border">
+                                    {!! nl2br(e($work->description)) !!}
+                                </div>
+                            </div>
+                            @endif
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Tipo</label>
                                 <span class="mt-1 inline-flex px-2 py-1 text-xs font-medium rounded-full

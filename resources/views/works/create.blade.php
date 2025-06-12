@@ -48,9 +48,9 @@
                     <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
                         Nome Lavoro <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" 
-                           name="name" 
-                           id="name" 
+                    <input type="text"
+                           name="name"
+                           id="name"
                            value="{{ old('name') }}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-500 @enderror"
                            placeholder="Inserisci il nome del lavoro"
@@ -59,6 +59,24 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
+            </div>
+
+            <!-- Description Field (Full Width) -->
+            <div class="col-span-1 md:col-span-2">
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                    Descrizione
+                </label>
+                <textarea name="description"
+                          id="description"
+                          rows="4"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('description') border-red-500 @enderror"
+                          placeholder="Inserisci una descrizione dettagliata del lavoro (opzionale)">{{ old('description') }}</textarea>
+                @error('description')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 <!-- Work Type -->
                 <div>
