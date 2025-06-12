@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             ClientSeeder::class,
             ProjectSeeder::class,
             ExpenseSeeder::class,
+            WorkSeeder::class,
         ]);
     }
 }

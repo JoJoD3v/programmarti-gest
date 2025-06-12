@@ -90,4 +90,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Notification::class);
     }
+
+    public function works()
+    {
+        return $this->hasMany(Work::class, 'assigned_user_id');
+    }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\WorkController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -47,6 +48,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Expense Management Routes
     Route::resource('expenses', ExpenseController::class)->middleware('permission:manage expenses');
+
+    // Work Management Routes
+    Route::resource('works', WorkController::class)->middleware('permission:manage works');
+    Route::patch('works/{work}/mark-completed', [WorkController::class, 'markCompleted'])
+        ->name('works.mark-completed')
+        ->middleware('permission:manage works');
 
     // Notification Routes
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');

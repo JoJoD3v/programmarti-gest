@@ -72,10 +72,21 @@
             <!-- Expense Management -->
             @can('manage expenses')
             <li>
-                <a href="{{ route('expenses.index') }}" 
+                <a href="{{ route('expenses.index') }}"
                    class="flex items-center px-4 py-3 text-white/90 rounded-lg hover:bg-white/10 hover:text-white transition-all duration-200 {{ request()->routeIs('expenses.*') ? 'bg-white/20 text-white' : '' }}">
                     <i class="fas fa-receipt w-5 h-5 mr-3"></i>
                     <span>Gestione Spese</span>
+                </a>
+            </li>
+            @endcan
+
+            <!-- Work Management -->
+            @can('manage works')
+            <li>
+                <a href="{{ route('works.index') }}"
+                   class="flex items-center px-4 py-3 text-white/90 rounded-lg hover:bg-white/10 hover:text-white transition-all duration-200 {{ request()->routeIs('works.*') ? 'bg-white/20 text-white' : '' }}">
+                    <i class="fas fa-tasks w-5 h-5 mr-3"></i>
+                    <span>Gestione Lavori</span>
                 </a>
             </li>
             @endcan

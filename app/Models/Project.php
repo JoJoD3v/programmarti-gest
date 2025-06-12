@@ -95,6 +95,11 @@ class Project extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function works()
+    {
+        return $this->hasMany(Work::class);
+    }
+
     /**
      * Generate payments for this project
      */

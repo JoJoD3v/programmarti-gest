@@ -21,6 +21,7 @@ class RoleSeeder extends Seeder
             'manage projects',
             'manage payments',
             'manage expenses',
+            'manage works',
             'view dashboard',
             'generate invoices',
             'send emails',
@@ -42,6 +43,7 @@ class RoleSeeder extends Seeder
             'manage clients',
             'manage projects',
             'manage payments',
+            'manage works',
             'view dashboard',
             'generate invoices',
         ]);
@@ -49,6 +51,7 @@ class RoleSeeder extends Seeder
         $socialMediaRole->givePermissionTo([
             'manage clients',
             'manage projects',
+            'manage works',
             'view dashboard',
         ]);
     }
