@@ -23,7 +23,7 @@ return new class extends Migration
             $table->enum('payment_type', ['down_payment', 'installment', 'one_time'])->default('one_time');
             $table->integer('installment_number')->nullable();
             $table->text('notes')->nullable();
-            $table->string('invoice_number')->nullable();
+            $table->string('invoice_number')->nullable()->unique();
             $table->timestamps();
         });
     }

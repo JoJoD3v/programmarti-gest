@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\Client;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
@@ -202,15 +203,28 @@ class PaymentController extends Controller
      */
     public function markCompleted(Payment $payment)
     {
-        $payment->markAsCompleted();
+        try {
+            // Start transaction to ensure data consistency
+            DB::beginTransaction();
 
-        // Generate invoice number if not exists
-        if (!$payment->invoice_number) {
-            $payment->update(['invoice_number' => $payment->generateInvoiceNumber()]);
+            $payment->markAsCompleted();
+
+            // Generate invoice number if not exists
+            if (!$payment->invoice_number) {
+                $invoiceNumber = $payment->generateInvoiceNumber();
+                $payment->update(['invoice_number' => $invoiceNumber]);
+            }
+
+            DB::commit();
+
+            return redirect()->back()
+                            ->with('success', 'Pagamento segnato come completato.');
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            return redirect()->back()
+                            ->with('error', 'Errore durante il completamento del pagamento: ' . $e->getMessage());
         }
-
-        return redirect()->back()
-                        ->with('success', 'Pagamento segnato come completato.');
     }
 
     /**
@@ -223,16 +237,28 @@ class PaymentController extends Controller
                             ->with('error', 'È possibile generare fatture solo per pagamenti completati.');
         }
 
-        // Generate invoice number if not exists
-        if (!$payment->invoice_number) {
-            $payment->update(['invoice_number' => $payment->generateInvoiceNumber()]);
+        try {
+            // Generate invoice number if not exists
+            if (!$payment->invoice_number) {
+                DB::beginTransaction();
+                $invoiceNumber = $payment->generateInvoiceNumber();
+                $payment->update(['invoice_number' => $invoiceNumber]);
+                DB::commit();
+            }
+
+            $pdf = Pdf::loadView('payments.invoice', compact('payment'));
+
+            $filename = "Fattura_{$payment->invoice_number}.pdf";
+
+            return $pdf->download($filename);
+        } catch (\Exception $e) {
+            if (DB::transactionLevel() > 0) {
+                DB::rollback();
+            }
+
+            return redirect()->back()
+                            ->with('error', 'Errore durante la generazione della fattura: ' . $e->getMessage());
         }
-
-        $pdf = Pdf::loadView('payments.invoice', compact('payment'));
-
-        $filename = "Fattura_{$payment->invoice_number}.pdf";
-
-        return $pdf->download($filename);
     }
 
     /**
@@ -245,12 +271,15 @@ class PaymentController extends Controller
                             ->with('error', 'È possibile inviare fatture solo per pagamenti completati.');
         }
 
-        // Generate invoice number if not exists
-        if (!$payment->invoice_number) {
-            $payment->update(['invoice_number' => $payment->generateInvoiceNumber()]);
-        }
-
         try {
+            // Generate invoice number if not exists
+            if (!$payment->invoice_number) {
+                DB::beginTransaction();
+                $invoiceNumber = $payment->generateInvoiceNumber();
+                $payment->update(['invoice_number' => $invoiceNumber]);
+                DB::commit();
+            }
+
             // Generate PDF
             $pdf = Pdf::loadView('payments.invoice', compact('payment'));
             $filename = "Fattura_{$payment->invoice_number}.pdf";
@@ -267,6 +296,10 @@ class PaymentController extends Controller
             return redirect()->back()
                             ->with('success', 'Fattura inviata con successo via email.');
         } catch (\Exception $e) {
+            if (DB::transactionLevel() > 0) {
+                DB::rollback();
+            }
+
             return redirect()->back()
                             ->with('error', 'Errore nell\'invio della fattura: ' . $e->getMessage());
         }

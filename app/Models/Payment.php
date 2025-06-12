@@ -80,9 +80,22 @@ class Payment extends Model
     {
         $year = now()->year;
         $month = now()->format('m');
-        $sequence = Payment::whereYear('created_at', $year)
-                          ->whereMonth('created_at', now()->month)
-                          ->count() + 1;
+
+        // Find the highest sequence number for the current month/year
+        $lastInvoice = Payment::whereYear('created_at', $year)
+                             ->whereMonth('created_at', now()->month)
+                             ->whereNotNull('invoice_number')
+                             ->orderBy('invoice_number', 'desc')
+                             ->first();
+
+        $sequence = 1;
+        if ($lastInvoice && $lastInvoice->invoice_number) {
+            // Extract sequence number from last invoice (format: INV-YYYYMM-XXXX)
+            $parts = explode('-', $lastInvoice->invoice_number);
+            if (count($parts) === 3) {
+                $sequence = intval($parts[2]) + 1;
+            }
+        }
 
         return "INV-{$year}{$month}-" . str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }

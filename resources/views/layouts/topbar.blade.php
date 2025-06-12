@@ -38,7 +38,7 @@
                 </button>
 
                 <!-- Dropdown Menu -->
-                <div x-show="open" 
+                <div x-show="open"
                      @click.away="open = false"
                      x-transition:enter="transition ease-out duration-100"
                      x-transition:enter-start="transform opacity-0 scale-95"
@@ -46,22 +46,25 @@
                      x-transition:leave="transition ease-in duration-75"
                      x-transition:leave-start="transform opacity-100 scale-100"
                      x-transition:leave-end="transform opacity-0 scale-95"
-                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                    
+                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                     style="display: none;">
+
                     <!-- Profile Link -->
-                    <a href="{{ route('profile.edit') }}" 
+                    <a href="{{ route('profile.edit') }}"
+                       @click="open = false"
                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         <i class="fas fa-user-edit w-4 h-4 mr-3 text-gray-400"></i>
                         Modifica Profilo
                     </a>
-                    
+
                     <!-- Divider -->
                     <hr class="my-1 border-gray-200">
-                    
+
                     <!-- Logout -->
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" 
+                        <button type="submit"
+                                @click="open = false"
                                 class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                             <i class="fas fa-sign-out-alt w-4 h-4 mr-3"></i>
                             Logout
