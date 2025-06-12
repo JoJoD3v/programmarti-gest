@@ -9,6 +9,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\WorkController;
+use App\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -48,6 +49,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Expense Management Routes
     Route::resource('expenses', ExpenseController::class)->middleware('permission:manage expenses');
+
+    // Appointment Management Routes
+    Route::resource('appointments', AppointmentController::class);
+    Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])
+        ->name('appointments.update-status');
 
     // Work Management Routes
     Route::resource('works', WorkController::class);

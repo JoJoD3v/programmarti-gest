@@ -39,13 +39,22 @@
             <!-- Client Management -->
             @can('manage clients')
             <li>
-                <a href="{{ route('clients.index') }}" 
+                <a href="{{ route('clients.index') }}"
                    class="flex items-center px-4 py-3 text-white/90 rounded-lg hover:bg-white/10 hover:text-white transition-all duration-200 {{ request()->routeIs('clients.*') ? 'bg-white/20 text-white' : '' }}">
                     <i class="fas fa-address-book w-5 h-5 mr-3"></i>
                     <span>Gestione Clienti</span>
                 </a>
             </li>
             @endcan
+
+            <!-- Appointment Management -->
+            <li>
+                <a href="{{ route('appointments.index') }}"
+                   class="flex items-center px-4 py-3 text-white/90 rounded-lg hover:bg-white/10 hover:text-white transition-all duration-200 {{ request()->routeIs('appointments.*') ? 'bg-white/20 text-white' : '' }}">
+                    <i class="fas fa-calendar-check w-5 h-5 mr-3"></i>
+                    <span>Gestione Appuntamenti</span>
+                </a>
+            </li>
 
             <!-- Project Management -->
             @can('manage projects')
