@@ -18,12 +18,16 @@ class AppointmentController extends Controller
     {
         $query = Appointment::with(['client', 'user']);
 
-        // Default to today's appointments
+        // Default to today's appointments, but allow showing all if no date specified
         $filterDate = $request->get('date', Carbon::today()->format('Y-m-d'));
         $filterClient = $request->get('client_id');
 
-        if ($filterDate) {
+        // Only apply date filter if explicitly provided
+        if ($filterDate && $request->has('date')) {
             $query->byDate($filterDate);
+        } elseif (!$request->has('date')) {
+            // If no date filter is specified, show today's appointments by default
+            $query->byDate(Carbon::today()->format('Y-m-d'));
         }
 
         if ($filterClient) {
@@ -67,10 +71,11 @@ class AppointmentController extends Controller
         $date = $request->get('date');
         $clientId = $request->get('client_id');
 
-        // Apply date filter
+        // Apply date filter - if no date specified, show all appointments
         if ($date !== null && $date !== '') {
             $query->byDate($date);
         }
+        // If no date filter, don't apply any date restriction to show all appointments
 
         // Apply client filter
         if ($clientId !== null && $clientId !== '') {
@@ -205,6 +210,23 @@ class AppointmentController extends Controller
 
         return redirect()->route('appointments.index')
                         ->with('success', 'Status appuntamento aggiornato con successo.');
+    }
+
+    /**
+     * Mark appointment as completed
+     */
+    public function markCompleted(Appointment $appointment)
+    {
+        // Only allow completing pending appointments
+        if ($appointment->status !== 'pending') {
+            return redirect()->back()
+                            ->with('error', 'Solo gli appuntamenti in attesa possono essere completati.');
+        }
+
+        $appointment->update(['status' => 'completed']);
+
+        return redirect()->back()
+                        ->with('success', 'Appuntamento segnato come completato.');
     }
 
 

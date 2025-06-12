@@ -47,7 +47,13 @@
                     </select>
                 </div>
 
-                <div class="flex items-end">
+                <div class="flex items-end space-x-2">
+                    <button type="button"
+                            id="show-all"
+                            class="px-4 py-2 text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                        <i class="fas fa-list mr-2"></i>
+                        Mostra Tutti
+                    </button>
                     <button type="button"
                             id="clear-filters"
                             class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
@@ -78,6 +84,7 @@
             const dateFilter = document.getElementById('date-filter');
             const clientFilter = document.getElementById('client-filter');
             const clearFilters = document.getElementById('clear-filters');
+            const showAll = document.getElementById('show-all');
             const loadingIndicator = document.getElementById('loading-indicator');
             const appointmentsTable = document.getElementById('appointments-table');
 
@@ -133,8 +140,7 @@
                     // Update table content (same as payments)
                     appointmentsTable.innerHTML = data.html;
 
-                    // Re-attach status handlers
-                    attachStatusHandlers();
+                    // Status handlers no longer needed since we use form buttons
 
                     hideLoading();
 
@@ -183,93 +189,18 @@
                 });
             }
 
-            function attachStatusHandlers() {
-                document.querySelectorAll('.status-select').forEach(select => {
-                    select.addEventListener('change', function() {
-                        const appointmentId = this.dataset.appointmentId;
-                        const status = this.value;
-                        const originalValue = this.dataset.originalValue || this.value;
-
-                        console.log('Updating status for appointment:', appointmentId, 'to:', status); // Debug log
-
-                        // Disable the select while updating
-                        this.disabled = true;
-
-                        fetch(`/appointments/${appointmentId}/status`, {
-                            method: 'PATCH',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({ status: status })
-                        })
-                        .then(response => {
-                            console.log('Status update response:', response.status); // Debug log
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! status: ${response.status}`);
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log('Status update data:', data); // Debug log
-                            if (data.success) {
-                                const statusBadge = document.querySelector(`#status-badge-${appointmentId}`);
-                                if (statusBadge) {
-                                    statusBadge.textContent = data.status_label;
-                                    statusBadge.className = `px-2 py-1 text-xs font-medium rounded-full ${data.status_color}`;
-                                }
-
-                                // Update the original value for future reference
-                                this.dataset.originalValue = status;
-
-                                // Show success message
-                                const successDiv = document.createElement('div');
-                                successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded z-50';
-                                successDiv.innerHTML = `
-                                    <div class="flex items-center">
-                                        <i class="fas fa-check mr-2"></i>
-                                        <span>Status aggiornato con successo</span>
-                                    </div>
-                                `;
-                                document.body.appendChild(successDiv);
-                                setTimeout(() => successDiv.remove(), 3000);
-                            } else {
-                                throw new Error(data.message || 'Errore sconosciuto');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error updating status:', error);
-                            // Revert the select to original value
-                            this.value = originalValue;
-
-                            // Show error message
-                            const errorDiv = document.createElement('div');
-                            errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded z-50';
-                            errorDiv.innerHTML = `
-                                <div class="flex items-center">
-                                    <i class="fas fa-exclamation-triangle mr-2"></i>
-                                    <span>Errore durante l'aggiornamento dello status</span>
-                                </div>
-                            `;
-                            document.body.appendChild(errorDiv);
-                            setTimeout(() => errorDiv.remove(), 3000);
-                        })
-                        .finally(() => {
-                            // Re-enable the select
-                            this.disabled = false;
-                        });
-                    });
-
-                    // Store original value for error recovery
-                    select.dataset.originalValue = select.value;
-                });
-            }
+            // Status handlers removed - now using form buttons instead of select dropdowns
 
             // Event listeners for filters (copied from payments)
             dateFilter.addEventListener('change', () => applyFilters());
             clientFilter.addEventListener('change', () => applyFilters());
+
+            // Show all appointments
+            showAll.addEventListener('click', function() {
+                dateFilter.value = '';
+                clientFilter.value = '';
+                applyFilters();
+            });
 
             // Reset filters (copied from payments)
             clearFilters.addEventListener('click', function() {
@@ -280,8 +211,7 @@
                 window.location.href = window.location.pathname;
             });
 
-            // Initial attachment of status handlers
-            attachStatusHandlers();
+            // Status handlers no longer needed
         });
     </script>
 </x-app-layout>

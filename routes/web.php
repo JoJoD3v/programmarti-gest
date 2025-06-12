@@ -55,6 +55,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('appointments.filter');
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])
         ->name('appointments.update-status');
+    Route::post('appointments/{appointment}/mark-completed', [AppointmentController::class, 'markCompleted'])
+        ->name('appointments.mark-completed');
 
 
     // Work Management Routes

@@ -19,7 +19,7 @@
                     Status
                 </th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cambia Status
+                    Azione
                 </th>
                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Azioni
@@ -52,19 +52,41 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span id="status-badge-{{ $appointment->id }}" 
+                        <span id="status-badge-{{ $appointment->id }}"
                               class="px-2 py-1 text-xs font-medium rounded-full {{ $appointment->status_color }}">
                             {{ $appointment->status_label }}
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <select class="status-select text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                data-appointment-id="{{ $appointment->id }}">
-                            <option value="pending" {{ $appointment->status === 'pending' ? 'selected' : '' }}>In Attesa</option>
-                            <option value="completed" {{ $appointment->status === 'completed' ? 'selected' : '' }}>Completato</option>
-                            <option value="cancelled" {{ $appointment->status === 'cancelled' ? 'selected' : '' }}>Annullato</option>
-                            <option value="absent" {{ $appointment->status === 'absent' ? 'selected' : '' }}>Assente</option>
-                        </select>
+                        @if($appointment->status === 'pending')
+                            <form method="POST" action="{{ route('appointments.mark-completed', $appointment) }}" class="inline-block">
+                                @csrf
+                                <button type="submit" 
+                                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-2" 
+                                    onclick="return confirm('Sei sicuro di voler segnare questo appuntamento come completato?')"                                    
+                                    title="Elimina">
+                                <i class="fas fa-check mr-2"></i>
+                                    Completa
+                                </button>
+                            </form>
+                        @elseif($appointment->status === 'completed')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-check mr-1"></i>
+                                Completato
+                            </span>
+                        @elseif($appointment->status === 'cancelled')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <i class="fas fa-times mr-1"></i>
+                                Annullato
+                            </span>
+                        @elseif($appointment->status === 'absent')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                <i class="fas fa-user-slash mr-1"></i>
+                                Assente
+                            </span>
+                        @else
+                            <span class="text-sm text-gray-500">{{ $appointment->status }}</span>
+                        @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex justify-end space-x-2">

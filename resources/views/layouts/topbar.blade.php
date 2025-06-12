@@ -39,15 +39,15 @@
 
                 <!-- Dropdown Menu -->
                 <div x-show="open"
-                     @click.away="open = false"
+                     x-cloak
+                     @click.outside="open = false"
                      x-transition:enter="transition ease-out duration-100"
                      x-transition:enter-start="transform opacity-0 scale-95"
                      x-transition:enter-end="transform opacity-100 scale-100"
                      x-transition:leave="transition ease-in duration-75"
                      x-transition:leave-start="transform opacity-100 scale-100"
                      x-transition:leave-end="transform opacity-0 scale-95"
-                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
-                     style="display: none;">
+                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
 
                     <!-- Profile Link -->
                     <a href="{{ route('profile.edit') }}"
