@@ -55,11 +55,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('appointments.filter');
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])
         ->name('appointments.update-status');
-    Route::get('appointments-test-ajax', [AppointmentController::class, 'testAjax'])
-        ->name('appointments.test-ajax');
-    Route::get('appointments-debug', function() {
-        return view('appointments.debug');
-    })->name('appointments.debug');
+
 
     // Work Management Routes
     Route::resource('works', WorkController::class);

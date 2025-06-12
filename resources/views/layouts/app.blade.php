@@ -60,10 +60,7 @@
         </div>
 
 
-
-
-
-
+        <script>
             // Toast notification function
             function showToast(title, message, type = 'info') {
                 // Create toast element

@@ -207,25 +207,5 @@ class AppointmentController extends Controller
                         ->with('success', 'Status appuntamento aggiornato con successo.');
     }
 
-    /**
-     * Test AJAX functionality
-     */
-    public function testAjax(Request $request)
-    {
-        Log::info('Test AJAX endpoint called', [
-            'is_ajax' => $request->ajax(),
-            'headers' => $request->headers->all(),
-            'method' => $request->method()
-        ]);
 
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'AJAX test successful',
-                'timestamp' => now()->toISOString()
-            ]);
-        }
-
-        return response('AJAX test endpoint - use AJAX request', 200);
-    }
 }
