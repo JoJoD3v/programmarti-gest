@@ -50,10 +50,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('expenses', ExpenseController::class)->middleware('permission:manage expenses');
 
     // Work Management Routes
-    Route::resource('works', WorkController::class)->middleware('permission:manage works');
+    Route::resource('works', WorkController::class);
     Route::patch('works/{work}/mark-completed', [WorkController::class, 'markCompleted'])
-        ->name('works.mark-completed')
-        ->middleware('permission:manage works');
+        ->name('works.mark-completed');
 
     // Notification Routes
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');

@@ -81,7 +81,6 @@
             @endcan
 
             <!-- Work Management -->
-            @can('manage works')
             <li>
                 <a href="{{ route('works.index') }}"
                    class="flex items-center px-4 py-3 text-white/90 rounded-lg hover:bg-white/10 hover:text-white transition-all duration-200 {{ request()->routeIs('works.*') ? 'bg-white/20 text-white' : '' }}">
@@ -89,7 +88,6 @@
                     <span>Gestione Lavori</span>
                 </a>
             </li>
-            @endcan
         </ul>
     </nav>
 
