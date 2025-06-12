@@ -20,34 +20,7 @@
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-4">
-                <!-- Notifications -->
-                <div class="relative">
-                    <button onclick="toggleNotifications()"
-                            class="relative p-2 text-gray-600 hover:text-gray-900 transition-colors duration-200">
-                        <i class="fas fa-bell text-lg"></i>
-                        <span id="notification-badge"
-                              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">
-                            0
-                        </span>
-                    </button>
 
-                    <!-- Notifications Dropdown -->
-                    <div id="notifications-dropdown"
-                         class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
-                        <div class="p-4 border-b border-gray-200">
-                            <div class="flex justify-between items-center">
-                                <h3 class="text-sm font-medium text-gray-900">Notifiche</h3>
-                                <a href="{{ route('notifications.index') }}"
-                                   class="text-xs text-blue-600 hover:text-blue-800">
-                                    Vedi tutte
-                                </a>
-                            </div>
-                        </div>
-                        <div id="notifications-list" class="max-h-64 overflow-y-auto">
-                            <!-- Notifications will be loaded here -->
-                        </div>
-                    </div>
-                </div>
 
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">

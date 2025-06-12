@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class AppointmentController extends Controller
 {
@@ -31,14 +32,57 @@ class AppointmentController extends Controller
 
         $appointments = $query->orderBy('appointment_date', 'asc')->get();
 
-        // For AJAX requests, return only the table content
+        // For AJAX requests, return JSON response like PaymentController
         if ($request->ajax()) {
-            return view('appointments.partials.table', compact('appointments'))->render();
+            Log::info('AJAX request for appointments index', [
+                'date' => $filterDate,
+                'client_id' => $filterClient,
+                'appointments_count' => $appointments->count()
+            ]);
+            return response()->json([
+                'html' => view('appointments.partials.table', compact('appointments'))->render(),
+                'total' => $appointments->count(),
+            ]);
         }
 
         $clients = Client::orderBy('first_name')->get();
 
         return view('appointments.index', compact('appointments', 'clients', 'filterDate', 'filterClient'));
+    }
+
+    /**
+     * Get filtered appointments via AJAX (copied from PaymentController pattern)
+     */
+    public function filter(Request $request)
+    {
+        // Validate filter parameters
+        $request->validate([
+            'date' => 'nullable|date',
+            'client_id' => 'nullable|exists:clients,id',
+        ]);
+
+        $query = Appointment::with(['client', 'user']);
+
+        // Apply filters consistently with index method
+        $date = $request->get('date');
+        $clientId = $request->get('client_id');
+
+        // Apply date filter
+        if ($date !== null && $date !== '') {
+            $query->byDate($date);
+        }
+
+        // Apply client filter
+        if ($clientId !== null && $clientId !== '') {
+            $query->byClient($clientId);
+        }
+
+        $appointments = $query->orderBy('appointment_date', 'asc')->get();
+
+        return response()->json([
+            'html' => view('appointments.partials.table', compact('appointments'))->render(),
+            'total' => $appointments->count(),
+        ]);
     }
 
     /**
@@ -127,6 +171,13 @@ class AppointmentController extends Controller
      */
     public function updateStatus(Request $request, Appointment $appointment)
     {
+        Log::info('Status update request received', [
+            'appointment_id' => $appointment->id,
+            'current_status' => $appointment->status,
+            'request_data' => $request->all(),
+            'is_ajax' => $request->ajax()
+        ]);
+
         $validated = $request->validate([
             'status' => 'required|in:pending,completed,cancelled,absent',
         ]);
@@ -134,6 +185,16 @@ class AppointmentController extends Controller
         $appointment->update(['status' => $validated['status']]);
 
         if ($request->ajax()) {
+            // Refresh the appointment to get updated attributes
+            $appointment->refresh();
+
+            Log::info('Status updated successfully', [
+                'appointment_id' => $appointment->id,
+                'new_status' => $appointment->status,
+                'status_label' => $appointment->status_label,
+                'status_color' => $appointment->status_color
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Status aggiornato con successo.',
@@ -144,5 +205,27 @@ class AppointmentController extends Controller
 
         return redirect()->route('appointments.index')
                         ->with('success', 'Status appuntamento aggiornato con successo.');
+    }
+
+    /**
+     * Test AJAX functionality
+     */
+    public function testAjax(Request $request)
+    {
+        Log::info('Test AJAX endpoint called', [
+            'is_ajax' => $request->ajax(),
+            'headers' => $request->headers->all(),
+            'method' => $request->method()
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'AJAX test successful',
+                'timestamp' => now()->toISOString()
+            ]);
+        }
+
+        return response('AJAX test endpoint - use AJAX request', 200);
     }
 }

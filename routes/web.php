@@ -7,7 +7,6 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ExpenseController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\WorkController;
 use App\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
@@ -52,20 +51,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Appointment Management Routes
     Route::resource('appointments', AppointmentController::class);
+    Route::get('appointments-filter', [AppointmentController::class, 'filter'])
+        ->name('appointments.filter');
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])
         ->name('appointments.update-status');
+    Route::get('appointments-test-ajax', [AppointmentController::class, 'testAjax'])
+        ->name('appointments.test-ajax');
+    Route::get('appointments-debug', function() {
+        return view('appointments.debug');
+    })->name('appointments.debug');
 
     // Work Management Routes
     Route::resource('works', WorkController::class);
     Route::patch('works/{work}/mark-completed', [WorkController::class, 'markCompleted'])
         ->name('works.mark-completed');
 
-    // Notification Routes
-    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::post('notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
-    Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
-    Route::get('notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
-    Route::get('notifications/recent', [NotificationController::class, 'getRecent'])->name('notifications.recent');
+
 });
 
 // Broadcast routes (outside auth middleware)

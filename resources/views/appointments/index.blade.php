@@ -48,7 +48,7 @@
                 </div>
 
                 <div class="flex items-end">
-                    <button type="button" 
+                    <button type="button"
                             id="clear-filters"
                             class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
                         <i class="fas fa-times mr-2"></i>
@@ -58,45 +58,128 @@
             </div>
         </div>
 
+        <!-- Loading Indicator (copied from payments) -->
+        <div id="loading-indicator" class="hidden items-center justify-center p-8">
+            <div class="flex items-center space-x-2">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                <span class="text-gray-600">Caricamento...</span>
+            </div>
+        </div>
+
         <!-- Appointments Table -->
         <div id="appointments-table">
             @include('appointments.partials.table', ['appointments' => $appointments])
         </div>
     </div>
 
-    @push('scripts')
+    <!-- JavaScript for Dynamic Filters (copied from payments pattern) -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const dateFilter = document.getElementById('date-filter');
             const clientFilter = document.getElementById('client-filter');
             const clearFilters = document.getElementById('clear-filters');
+            const loadingIndicator = document.getElementById('loading-indicator');
             const appointmentsTable = document.getElementById('appointments-table');
 
-            function updateTable() {
-                const date = dateFilter.value;
-                const clientId = clientFilter.value;
-                
-                const url = new URL(window.location.href);
-                url.searchParams.set('date', date);
-                if (clientId) {
-                    url.searchParams.set('client_id', clientId);
-                } else {
-                    url.searchParams.delete('client_id');
+            // Function to show loading state
+            function showLoading() {
+                loadingIndicator.classList.remove('hidden');
+                loadingIndicator.classList.add('flex');
+                appointmentsTable.style.opacity = '0.5';
+            }
+
+            // Function to hide loading state
+            function hideLoading() {
+                loadingIndicator.classList.add('hidden');
+                loadingIndicator.classList.remove('flex');
+                appointmentsTable.style.opacity = '1';
+            }
+
+            // Function to apply filters (copied from payments)
+            function applyFilters() {
+                showLoading();
+
+                const params = new URLSearchParams();
+
+                // Only add parameters if they have values
+                if (dateFilter.value !== '') {
+                    params.append('date', dateFilter.value);
+                }
+                if (clientFilter.value !== '') {
+                    params.append('client_id', clientFilter.value);
                 }
 
-                fetch(url.toString(), {
+                // Update URL without page reload
+                const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+                window.history.pushState({}, '', newUrl);
+
+                // Make AJAX request (using the same pattern as payments)
+                const filterUrl = `{{ route('appointments.filter') }}${params.toString() ? '?' + params.toString() : ''}`;
+                console.log('Filter URL:', filterUrl); // Debug log
+                console.log('Filters:', {
+                    date: dateFilter.value,
+                    client_id: clientFilter.value
+                }); // Debug log
+
+                fetch(filterUrl, {
+                    method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'Accept': 'application/json',
                     }
                 })
-                .then(response => response.text())
-                .then(html => {
-                    appointmentsTable.innerHTML = html;
+                .then(response => response.json())
+                .then(data => {
+                    // Update table content (same as payments)
+                    appointmentsTable.innerHTML = data.html;
+
+                    // Re-attach status handlers
                     attachStatusHandlers();
+
+                    hideLoading();
+
+                    // Show success feedback (copied from payments)
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded z-50 transition-opacity duration-300';
+                    successDiv.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-check mr-2"></i>
+                            <span>Filtri applicati (${data.total} risultati)</span>
+                        </div>
+                    `;
+                    document.body.appendChild(successDiv);
+
+                    // Auto-remove success message
+                    setTimeout(() => {
+                        if (successDiv.parentElement) {
+                            successDiv.remove();
+                        }
+                    }, 3000);
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    hideLoading();
+
+                    // Show user-friendly error message (copied from payments)
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50';
+                    errorDiv.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <span>Errore durante il caricamento dei dati. Riprova.</span>
+                            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-red-500 hover:text-red-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    document.body.appendChild(errorDiv);
+
+                    // Auto-remove after 5 seconds
+                    setTimeout(() => {
+                        if (errorDiv.parentElement) {
+                            errorDiv.remove();
+                        }
+                    }, 5000);
                 });
             }
 
@@ -105,43 +188,100 @@
                     select.addEventListener('change', function() {
                         const appointmentId = this.dataset.appointmentId;
                         const status = this.value;
-                        
+                        const originalValue = this.dataset.originalValue || this.value;
+
+                        console.log('Updating status for appointment:', appointmentId, 'to:', status); // Debug log
+
+                        // Disable the select while updating
+                        this.disabled = true;
+
                         fetch(`/appointments/${appointmentId}/status`, {
                             method: 'PATCH',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'X-Requested-With': 'XMLHttpRequest'
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
                             },
                             body: JSON.stringify({ status: status })
                         })
-                        .then(response => response.json())
+                        .then(response => {
+                            console.log('Status update response:', response.status); // Debug log
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
                         .then(data => {
+                            console.log('Status update data:', data); // Debug log
                             if (data.success) {
                                 const statusBadge = document.querySelector(`#status-badge-${appointmentId}`);
-                                statusBadge.textContent = data.status_label;
-                                statusBadge.className = `px-2 py-1 text-xs font-medium rounded-full ${data.status_color}`;
+                                if (statusBadge) {
+                                    statusBadge.textContent = data.status_label;
+                                    statusBadge.className = `px-2 py-1 text-xs font-medium rounded-full ${data.status_color}`;
+                                }
+
+                                // Update the original value for future reference
+                                this.dataset.originalValue = status;
+
+                                // Show success message
+                                const successDiv = document.createElement('div');
+                                successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded z-50';
+                                successDiv.innerHTML = `
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check mr-2"></i>
+                                        <span>Status aggiornato con successo</span>
+                                    </div>
+                                `;
+                                document.body.appendChild(successDiv);
+                                setTimeout(() => successDiv.remove(), 3000);
+                            } else {
+                                throw new Error(data.message || 'Errore sconosciuto');
                             }
                         })
                         .catch(error => {
-                            console.error('Error:', error);
+                            console.error('Error updating status:', error);
+                            // Revert the select to original value
+                            this.value = originalValue;
+
+                            // Show error message
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded z-50';
+                            errorDiv.innerHTML = `
+                                <div class="flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    <span>Errore durante l'aggiornamento dello status</span>
+                                </div>
+                            `;
+                            document.body.appendChild(errorDiv);
+                            setTimeout(() => errorDiv.remove(), 3000);
+                        })
+                        .finally(() => {
+                            // Re-enable the select
+                            this.disabled = false;
                         });
                     });
+
+                    // Store original value for error recovery
+                    select.dataset.originalValue = select.value;
                 });
             }
 
-            dateFilter.addEventListener('change', updateTable);
-            clientFilter.addEventListener('change', updateTable);
-            
+            // Event listeners for filters (copied from payments)
+            dateFilter.addEventListener('change', () => applyFilters());
+            clientFilter.addEventListener('change', () => applyFilters());
+
+            // Reset filters (copied from payments)
             clearFilters.addEventListener('click', function() {
                 dateFilter.value = '{{ \Carbon\Carbon::today()->format('Y-m-d') }}';
                 clientFilter.value = '';
-                updateTable();
+
+                // Clear URL parameters and redirect to show default view
+                window.location.href = window.location.pathname;
             });
 
             // Initial attachment of status handlers
             attachStatusHandlers();
         });
     </script>
-    @endpush
 </x-app-layout>

@@ -7,7 +7,6 @@ use App\Models\Project;
 use App\Models\Client;
 use App\Models\User;
 use App\Models\Payment;
-use App\Events\ProjectAssigned;
 
 class ProjectController extends Controller
 {
@@ -83,11 +82,7 @@ class ProjectController extends Controller
 
         $project = Project::create($validated);
 
-        // Fire event if user is assigned
-        if ($validated['assigned_user_id']) {
-            $assignedUser = User::find($validated['assigned_user_id']);
-            event(new ProjectAssigned($project, $assignedUser));
-        }
+
 
         // Generate payments if needed
         if ($request->has('generate_payments') && $request->generate_payments) {
@@ -147,11 +142,7 @@ class ProjectController extends Controller
 
         $project->update($validated);
 
-        // Fire event if user assignment changed
-        if ($newAssignedUserId && $newAssignedUserId !== $oldAssignedUserId) {
-            $assignedUser = User::find($newAssignedUserId);
-            event(new ProjectAssigned($project, $assignedUser));
-        }
+
 
         return redirect()->route('projects.index')
                         ->with('success', 'Progetto aggiornato con successo.');

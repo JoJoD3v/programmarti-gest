@@ -8,7 +8,6 @@ use App\Models\Project;
 use App\Models\Client;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
-use App\Events\PaymentCreated;
 
 class PaymentController extends Controller
 {
@@ -141,10 +140,7 @@ class PaymentController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $payment = Payment::create($validated);
-
-        // Fire event for notifications
-        event(new PaymentCreated($payment));
+        Payment::create($validated);
 
         return redirect()->route('payments.index')
                         ->with('success', 'Pagamento creato con successo.');
