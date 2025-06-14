@@ -52,7 +52,7 @@
                 <a href="{{ route('appointments.index') }}"
                    class="flex items-center px-4 py-3 text-white/90 rounded-lg hover:bg-white/10 hover:text-white transition-all duration-200 {{ request()->routeIs('appointments.*') ? 'bg-white/20 text-white' : '' }}">
                     <i class="fas fa-calendar-check w-5 h-5 mr-3"></i>
-                    <span>Gestione Appuntamenti</span>
+                    <span>Appuntamenti</span>
                 </a>
             </li>
 
@@ -62,7 +62,7 @@
                 <a href="{{ route('projects.index') }}" 
                    class="flex items-center px-4 py-3 text-white/90 rounded-lg hover:bg-white/10 hover:text-white transition-all duration-200 {{ request()->routeIs('projects.*') ? 'bg-white/20 text-white' : '' }}">
                     <i class="fas fa-project-diagram w-5 h-5 mr-3"></i>
-                    <span>Gestione Progetti</span>
+                    <span>Progetti</span>
                 </a>
             </li>
             @endcan
@@ -73,7 +73,7 @@
                 <a href="{{ route('payments.index') }}" 
                    class="flex items-center px-4 py-3 text-white/90 rounded-lg hover:bg-white/10 hover:text-white transition-all duration-200 {{ request()->routeIs('payments.*') ? 'bg-white/20 text-white' : '' }}">
                     <i class="fas fa-credit-card w-5 h-5 mr-3"></i>
-                    <span>Gestione Pagamenti</span>
+                    <span>Pagamenti</span>
                 </a>
             </li>
             @endcan
@@ -84,7 +84,7 @@
                 <a href="{{ route('expenses.index') }}"
                    class="flex items-center px-4 py-3 text-white/90 rounded-lg hover:bg-white/10 hover:text-white transition-all duration-200 {{ request()->routeIs('expenses.*') ? 'bg-white/20 text-white' : '' }}">
                     <i class="fas fa-receipt w-5 h-5 mr-3"></i>
-                    <span>Gestione Spese</span>
+                    <span>Spese</span>
                 </a>
             </li>
             @endcan
@@ -94,7 +94,7 @@
                 <a href="{{ route('works.index') }}"
                    class="flex items-center px-4 py-3 text-white/90 rounded-lg hover:bg-white/10 hover:text-white transition-all duration-200 {{ request()->routeIs('works.*') ? 'bg-white/20 text-white' : '' }}">
                     <i class="fas fa-tasks w-5 h-5 mr-3"></i>
-                    <span>Gestione Lavori</span>
+                    <span>Lavori</span>
                 </a>
             </li>
 
