@@ -28,6 +28,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Project Management Routes
     Route::resource('projects', ProjectController::class)->middleware('permission:manage projects');
+    Route::get('projects-filter', [ProjectController::class, 'filter'])
+        ->name('projects.filter')
+        ->middleware('permission:manage projects');
     Route::post('projects/{project}/generate-payments', [ProjectController::class, 'generatePayments'])
         ->name('projects.generate-payments')
         ->middleware('permission:manage projects');

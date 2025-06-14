@@ -21,7 +21,7 @@
             </div>
 
             <!-- Search and Filters -->
-            <form method="GET" class="flex flex-wrap gap-4">
+            <form method="GET" class="flex flex-wrap gap-4" id="projectsFilterForm">
                 <div class="flex-1 min-w-64">
                     <input type="text"
                            name="search"
@@ -30,7 +30,9 @@
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
-                    <select name="status" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="status"
+                            id="statusFilter"
+                            class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Tutti gli stati</option>
                         <option value="planning" {{ request('status') === 'planning' ? 'selected' : '' }}>Pianificazione</option>
                         <option value="in_progress" {{ request('status') === 'in_progress' ? 'selected' : '' }}>In Corso</option>
@@ -39,7 +41,9 @@
                     </select>
                 </div>
                 <div>
-                    <select name="project_type" class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="project_type"
+                            id="projectTypeFilter"
+                            class="select-improved px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Tutti i tipi</option>
                         <option value="website" {{ request('project_type') === 'website' ? 'selected' : '' }}>Sito Web</option>
                         <option value="ecommerce" {{ request('project_type') === 'ecommerce' ? 'selected' : '' }}>E-commerce</option>
@@ -49,10 +53,14 @@
                         <option value="nfc_accessories" {{ request('project_type') === 'nfc_accessories' ? 'selected' : '' }}>Accessori NFC</option>
                     </select>
                 </div>
-                <button type="submit" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                <button type="submit"
+                        id="searchButton"
+                        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
                     <i class="fas fa-search mr-2"></i>Cerca
                 </button>
-                <a href="{{ route('projects.index') }}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+                <a href="{{ route('projects.index') }}"
+                   id="reset-filters"
+                   class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
                     Reset
                 </a>
             </form>
@@ -60,7 +68,7 @@
 
         <!-- Projects Table -->
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="min-w-full divide-y divide-gray-200" id="projectsTable">
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -89,93 +97,187 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($projects as $project)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">
-                                        {{ $project->name }}
-                                    </div>
-                                    @if($project->description)
-                                        <div class="text-sm text-gray-500">
-                                            {{ Str::limit($project->description, 50) }}
-                                        </div>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $project->client->full_name }}</div>
-                                <div class="text-sm text-gray-500">{{ $project->client->email }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                                    {{ App\Models\Project::getProjectTypes()[$project->project_type] ?? $project->project_type }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $project->assignedUser ? $project->assignedUser->full_name : 'Non assegnato' }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                @if($project->total_cost)
-                                    €{{ number_format($project->total_cost, 2) }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full
-                                    @if($project->status === 'completed') bg-green-100 text-green-800
-                                    @elseif($project->status === 'in_progress') bg-blue-100 text-blue-800
-                                    @elseif($project->status === 'planning') bg-yellow-100 text-yellow-800
-                                    @else bg-gray-100 text-gray-800 @endif">
-                                    {{ App\Models\Project::getStatuses()[$project->status] ?? $project->status }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $project->start_date->format('d/m/Y') }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex justify-end space-x-2">
-                                    <a href="{{ route('projects.show', $project) }}" 
-                                       class="text-blue-600 hover:text-blue-900">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ route('projects.edit', $project) }}" 
-                                       class="text-yellow-600 hover:text-yellow-900">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form action="{{ route('projects.destroy', $project) }}" 
-                                          method="POST" 
-                                          class="inline"
-                                          onsubmit="return confirm('Sei sicuro di voler eliminare questo progetto?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="px-6 py-12 text-center text-gray-500">
-                                <i class="fas fa-project-diagram text-4xl mb-4 text-gray-300"></i>
-                                <p class="text-lg">Nessun progetto trovato</p>
-                                <p class="text-sm">Inizia aggiungendo il tuo primo progetto</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
+                @include('projects.partials.table')
             </table>
         </div>
 
         <!-- Pagination -->
-        @if($projects->hasPages())
-            <div class="px-6 py-4 border-t border-gray-200">
-                {{ $projects->appends(request()->query())->links('pagination.custom') }}
-            </div>
-        @endif
+        <div id="projectsPagination">
+            @include('projects.partials.pagination')
+        </div>
     </div>
+
+    <!-- AJAX Filtering JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('projectsFilterForm');
+            const statusFilter = document.getElementById('statusFilter');
+            const projectTypeFilter = document.getElementById('projectTypeFilter');
+            const searchInput = document.querySelector('input[name="search"]');
+            const searchButton = document.getElementById('searchButton');
+            const resetButton = document.getElementById('reset-filters');
+            const projectsTable = document.getElementById('projectsTable');
+            const projectsPagination = document.getElementById('projectsPagination');
+
+            let searchTimeout;
+
+            // Function to show loading state
+            function showLoading() {
+                if (searchButton) {
+                    searchButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Caricamento...';
+                    searchButton.disabled = true;
+                }
+                // Add loading overlay to table
+                projectsTable.style.opacity = '0.6';
+                projectsTable.style.pointerEvents = 'none';
+            }
+
+            // Function to hide loading state
+            function hideLoading() {
+                if (searchButton) {
+                    searchButton.innerHTML = '<i class="fas fa-search mr-2"></i>Cerca';
+                    searchButton.disabled = false;
+                }
+                // Remove loading overlay from table
+                projectsTable.style.opacity = '1';
+                projectsTable.style.pointerEvents = 'auto';
+            }
+
+            // Function to perform AJAX filtering
+            function performFilter(page = 1) {
+                showLoading();
+
+                // Build query parameters
+                const params = new URLSearchParams();
+
+                if (searchInput.value.trim()) {
+                    params.append('search', searchInput.value.trim());
+                }
+                if (statusFilter.value) {
+                    params.append('status', statusFilter.value);
+                }
+                if (projectTypeFilter.value) {
+                    params.append('project_type', projectTypeFilter.value);
+                }
+                if (page > 1) {
+                    params.append('page', page);
+                }
+
+                // Update URL without page reload
+                const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+                window.history.pushState({}, '', newUrl);
+
+                // Make AJAX request
+                const filterUrl = `{{ route('projects.filter') }}${params.toString() ? '?' + params.toString() : ''}`;
+                console.log('Filter URL:', filterUrl); // Debug log
+                console.log('Filters:', {
+                    search: searchInput.value,
+                    status: statusFilter.value,
+                    project_type: projectTypeFilter.value,
+                    page: page
+                }); // Debug log
+
+                fetch(filterUrl, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update table content
+                    const tbody = projectsTable.querySelector('tbody');
+                    if (tbody) {
+                        tbody.outerHTML = data.html;
+                    }
+
+                    // Update pagination
+                    projectsPagination.innerHTML = data.pagination;
+
+                    // Reattach pagination event listeners
+                    attachPaginationListeners();
+
+                    console.log('Filter applied successfully. Total results:', data.total);
+                })
+                .catch(error => {
+                    console.error('Error applying filters:', error);
+                    alert('Errore durante il filtraggio. Riprova.');
+                })
+                .finally(() => {
+                    hideLoading();
+                });
+            }
+
+            // Function to attach pagination event listeners
+            function attachPaginationListeners() {
+                const paginationLinks = document.querySelectorAll('.pagination-link');
+                paginationLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const page = this.getAttribute('data-page');
+                        if (page) {
+                            performFilter(parseInt(page));
+                        }
+                    });
+                });
+            }
+
+            // Auto-submit for dropdown filters
+            statusFilter.addEventListener('change', function() {
+                console.log('Status filter changed to:', this.value);
+                performFilter();
+            });
+
+            projectTypeFilter.addEventListener('change', function() {
+                console.log('Project type filter changed to:', this.value);
+                performFilter();
+            });
+
+            // Debounced search for text input
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    console.log('Search input changed to:', this.value);
+                    performFilter();
+                }, 500); // 500ms delay
+            });
+
+            // Manual search button
+            searchButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                clearTimeout(searchTimeout);
+                performFilter();
+            });
+
+            // Reset filters
+            resetButton.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Clear all filters
+                searchInput.value = '';
+                statusFilter.value = '';
+                projectTypeFilter.value = '';
+
+                // Perform filter to show all results
+                performFilter();
+            });
+
+            // Prevent form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                performFilter();
+            });
+
+            // Initial pagination listeners
+            attachPaginationListeners();
+
+            console.log('Projects AJAX filtering initialized');
+        });
+    </script>
 </x-app-layout>

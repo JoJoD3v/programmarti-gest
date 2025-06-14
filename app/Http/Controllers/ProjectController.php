@@ -18,7 +18,7 @@ class ProjectController extends Controller
         $query = Project::with(['client', 'assignedUser']);
 
         // Search functionality
-        if ($request->has('search') && $request->search !== '') {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -31,18 +31,80 @@ class ProjectController extends Controller
             });
         }
 
-        // Filter by status
-        if ($request->has('status') && $request->status !== '') {
+        // Filter by status - only apply filter if a specific status is selected
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filter by project type
-        if ($request->has('project_type') && $request->project_type !== '') {
+        // Filter by project type - only apply filter if a specific type is selected
+        if ($request->filled('project_type')) {
             $query->where('project_type', $request->project_type);
         }
 
         $projects = $query->orderBy('created_at', 'desc')->paginate(15);
+
+        // For AJAX requests, return only the table content
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('projects.partials.table', compact('projects'))->render(),
+                'pagination' => view('projects.partials.pagination', compact('projects'))->render(),
+                'total' => $projects->total(),
+                'current_page' => $projects->currentPage(),
+                'last_page' => $projects->lastPage(),
+            ]);
+        }
+
         return view('projects.index', compact('projects'));
+    }
+
+    /**
+     * Get filtered projects via AJAX
+     */
+    public function filter(Request $request)
+    {
+        // Validate filter parameters
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+            'status' => 'nullable|in:planning,in_progress,completed,cancelled',
+            'project_type' => 'nullable|in:website,ecommerce,management_system,marketing_campaign,social_media_management,nfc_accessories',
+            'page' => 'nullable|integer|min:1',
+        ]);
+
+        $query = Project::with(['client', 'assignedUser']);
+
+        // Apply filters consistently with index method
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhereHas('client', function($clientQuery) use ($search) {
+                      $clientQuery->where('first_name', 'like', "%{$search}%")
+                                  ->orWhere('last_name', 'like', "%{$search}%")
+                                  ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Apply status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Apply project type filter
+        if ($request->filled('project_type')) {
+            $query->where('project_type', $request->project_type);
+        }
+
+        $projects = $query->orderBy('created_at', 'desc')->paginate(15);
+
+        return response()->json([
+            'html' => view('projects.partials.table', compact('projects'))->render(),
+            'pagination' => view('projects.partials.pagination', compact('projects'))->render(),
+            'total' => $projects->total(),
+            'current_page' => $projects->currentPage(),
+            'last_page' => $projects->lastPage(),
+        ]);
     }
 
     /**
