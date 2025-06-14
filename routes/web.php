@@ -9,6 +9,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\WorkController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\PreventivoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -64,6 +65,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('works/{work}/mark-completed', [WorkController::class, 'markCompleted'])
         ->name('works.mark-completed');
 
+    // Preventivi (Quotes) Management Routes
+    Route::resource('preventivi', PreventivoController::class)->parameters([
+        'preventivi' => 'preventivo'
+    ]);
+    Route::get('api/clients/{client}/projects', [PreventivoController::class, 'getProjectsByClient'])
+        ->name('api.clients.projects');
+    Route::post('preventivi/{preventivo}/enhance-ai', [PreventivoController::class, 'enhanceWithAI'])
+        ->name('preventivi.enhance-ai');
+    Route::post('preventivi/{preventivo}/generate-pdf', [PreventivoController::class, 'generatePDF'])
+        ->name('preventivi.generate-pdf');
+    Route::get('preventivi/{preventivo}/download-pdf', [PreventivoController::class, 'downloadPDF'])
+        ->name('preventivi.download-pdf');
 
 });
 

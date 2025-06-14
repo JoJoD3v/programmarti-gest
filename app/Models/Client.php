@@ -49,4 +49,9 @@ class Client extends Model
     {
         return $this->hasMany(Appointment::class);
     }
+
+    public function preventivi()
+    {
+        return $this->hasMany(Preventivo::class);
+    }
 }

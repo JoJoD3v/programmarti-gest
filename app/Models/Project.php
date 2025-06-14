@@ -100,6 +100,11 @@ class Project extends Model
         return $this->hasMany(Work::class);
     }
 
+    public function preventivi()
+    {
+        return $this->hasMany(Preventivo::class);
+    }
+
     /**
      * Generate payments for this project
      */

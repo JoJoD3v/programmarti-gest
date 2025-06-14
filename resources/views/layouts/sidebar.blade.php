@@ -97,6 +97,15 @@
                     <span>Gestione Lavori</span>
                 </a>
             </li>
+
+            <!-- Preventivi Management -->
+            <li>
+                <a href="{{ route('preventivi.index') }}"
+                   class="flex items-center px-4 py-3 text-white/90 rounded-lg hover:bg-white/10 hover:text-white transition-all duration-200 {{ request()->routeIs('preventivi.*') ? 'bg-white/20 text-white' : '' }}">
+                    <i class="fas fa-file-invoice w-5 h-5 mr-3"></i>
+                    <span>Preventivi</span>
+                </a>
+            </li>
         </ul>
     </nav>
 

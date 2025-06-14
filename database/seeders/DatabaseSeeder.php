@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             ProjectSeeder::class,
             ExpenseSeeder::class,
             WorkSeeder::class,
+            PreventivoSeeder::class,
         ]);
     }
 }
