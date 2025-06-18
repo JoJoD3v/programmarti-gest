@@ -307,11 +307,13 @@
                             console.log('AI Enhancement completed:', data);
                             let message = '✅ Analisi AI completata! Le descrizioni sono state migliorate con successo.';
 
-                            // Add VAT information if available
-                            if (data.totals && data.totals.vat_enabled) {
-                                message += `\n💰 Totali ricalcolati con IVA (${data.totals.vat_rate}%): €${parseFloat(data.totals.total_amount).toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
-                            } else if (data.totals) {
-                                message += `\n💰 Totale ricalcolato: €${parseFloat(data.totals.total_amount).toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
+                            // Show that totals are preserved (not recalculated)
+                            if (data.totals_unchanged) {
+                                message += '\n📋 I totali rimangono invariati (solo le descrizioni sono state migliorate).';
+                            } else if (data.current_totals && data.current_totals.vat_enabled) {
+                                message += `\n💰 Totale attuale con IVA (${data.current_totals.vat_rate}%): €${parseFloat(data.current_totals.total_amount).toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
+                            } else if (data.current_totals) {
+                                message += `\n💰 Totale attuale: €${parseFloat(data.current_totals.total_amount).toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
                             }
 
                             alert(message);

@@ -353,52 +353,40 @@ class PreventivoController extends Controller
             );
 
             // Update items with AI enhanced descriptions
+            // NOTE: We only update descriptions, NOT costs - so totals remain unchanged
             $updatedCount = 0;
             foreach ($enhancedItems as $index => $enhanced) {
                 if (isset($preventivo->items[$index])) {
                     $item = $preventivo->items[$index];
                     $item->update([
                         'ai_enhanced_description' => $enhanced['ai_enhanced_description']
+                        // Deliberately NOT updating 'cost' - prices remain the same
                     ]);
                     $updatedCount++;
                 }
             }
 
+            // Mark as AI processed - totals are intentionally NOT recalculated
+            // because AI enhancement only adds descriptions, costs remain unchanged
             $preventivo->update(['ai_processed' => true]);
-
-            // Log totals before recalculation for debugging
-            Log::info('AI Enhancement - Totals before recalculation', [
-                'preventivo_id' => $preventivo->id,
-                'subtotal_amount' => $preventivo->subtotal_amount,
-                'vat_enabled' => $preventivo->vat_enabled,
-                'vat_rate' => $preventivo->vat_rate,
-                'vat_amount' => $preventivo->vat_amount,
-                'total_amount' => $preventivo->total_amount,
-                'items_count' => $preventivo->items()->count(),
-                'items_sum' => $preventivo->items()->sum('cost')
-            ]);
-
-            // Recalculate totals to ensure VAT is properly applied
-            $preventivo->calculateTotal();
 
             Log::info('AI enhancement completed', [
                 'preventivo_id' => $preventivo->id,
                 'items_updated' => $updatedCount,
-                'totals_recalculated' => true,
-                'final_subtotal_amount' => $preventivo->subtotal_amount,
-                'final_vat_amount' => $preventivo->vat_amount,
-                'final_total_amount' => $preventivo->total_amount
+                'note' => 'Totals NOT recalculated - AI only updates descriptions, costs remain unchanged',
+                'preserved_subtotal_amount' => $preventivo->subtotal_amount,
+                'preserved_vat_amount' => $preventivo->vat_amount,
+                'preserved_total_amount' => $preventivo->total_amount
             ]);
-
-            // Refresh the model to get updated totals
-            $preventivo->refresh();
 
             return response()->json([
                 'success' => true,
                 'message' => "Analisi AI completata con successo. {$updatedCount} descrizioni sono state migliorate.",
                 'items' => $enhancedItems,
                 'updated_count' => $updatedCount,
-                'totals' => [
+                'note' => 'I totali rimangono invariati - l\'AI migliora solo le descrizioni',
+                'totals_unchanged' => true,
+                'current_totals' => [
                     'subtotal_amount' => $preventivo->subtotal_amount,
                     'vat_enabled' => $preventivo->vat_enabled,
                     'vat_rate' => $preventivo->vat_rate,
