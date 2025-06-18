@@ -323,16 +323,42 @@ class PreventivoController extends Controller
 
             $preventivo->update(['ai_processed' => true]);
 
+            // Log totals before recalculation for debugging
+            Log::info('Totals before recalculation', [
+                'preventivo_id' => $preventivo->id,
+                'subtotal_amount' => $preventivo->subtotal_amount,
+                'vat_enabled' => $preventivo->vat_enabled,
+                'vat_amount' => $preventivo->vat_amount,
+                'total_amount' => $preventivo->total_amount
+            ]);
+
+            // Recalculate totals to ensure VAT is properly applied
+            $preventivo->calculateTotal();
+
             Log::info('AI enhancement completed', [
                 'preventivo_id' => $preventivo->id,
-                'items_updated' => $updatedCount
+                'items_updated' => $updatedCount,
+                'totals_recalculated' => true,
+                'final_subtotal_amount' => $preventivo->subtotal_amount,
+                'final_vat_amount' => $preventivo->vat_amount,
+                'final_total_amount' => $preventivo->total_amount
             ]);
+
+            // Refresh the model to get updated totals
+            $preventivo->refresh();
 
             return response()->json([
                 'success' => true,
                 'message' => "Analisi AI completata con successo. {$updatedCount} descrizioni sono state migliorate.",
                 'items' => $enhancedItems,
-                'updated_count' => $updatedCount
+                'updated_count' => $updatedCount,
+                'totals' => [
+                    'subtotal_amount' => $preventivo->subtotal_amount,
+                    'vat_enabled' => $preventivo->vat_enabled,
+                    'vat_rate' => $preventivo->vat_rate,
+                    'vat_amount' => $preventivo->vat_amount,
+                    'total_amount' => $preventivo->total_amount
+                ]
             ]);
 
         } catch (\Exception $e) {

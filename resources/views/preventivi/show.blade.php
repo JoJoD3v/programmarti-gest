@@ -304,7 +304,17 @@
                     .then(data => {
                         hideLoading();
                         if (data.success) {
-                            alert('✅ Analisi AI completata! Le descrizioni sono state migliorate con successo.');
+                            console.log('AI Enhancement completed:', data);
+                            let message = '✅ Analisi AI completata! Le descrizioni sono state migliorate con successo.';
+
+                            // Add VAT information if available
+                            if (data.totals && data.totals.vat_enabled) {
+                                message += `\n💰 Totali ricalcolati con IVA (${data.totals.vat_rate}%): €${parseFloat(data.totals.total_amount).toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
+                            } else if (data.totals) {
+                                message += `\n💰 Totale ricalcolato: €${parseFloat(data.totals.total_amount).toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
+                            }
+
+                            alert(message);
                             location.reload(); // Reload to show enhanced descriptions
                         } else {
                             alert('❌ Errore durante l\'analisi AI: ' + data.message);
