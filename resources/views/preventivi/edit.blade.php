@@ -228,8 +228,30 @@
                     projectSelect.innerHTML = '<option value="">Caricamento progetti...</option>';
 
                     // Fetch projects for selected client
-                    fetch(`/api/clients/${clientId}/projects`)
-                        .then(response => response.json())
+                    const baseUrl = '{{ route("api.clients.projects", ["client" => "__CLIENT_ID__"]) }}';
+                    const apiUrl = baseUrl.replace('__CLIENT_ID__', clientId);
+                    console.log('Base URL template:', baseUrl);
+                    console.log('Final API URL:', apiUrl);
+                    console.log('Client ID:', clientId);
+
+                    fetch(apiUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                            },
+                            credentials: 'same-origin'
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            console.log('Response headers:', response.headers);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
                         .then(data => {
                             projectSelect.innerHTML = '<option value="">Seleziona progetto</option>';
                             data.projects.forEach(project => {
@@ -245,7 +267,29 @@
                         })
                         .catch(error => {
                             console.error('Error fetching projects:', error);
+                            console.error('API URL was:', apiUrl);
                             projectSelect.innerHTML = '<option value="">Errore nel caricamento progetti</option>';
+
+                            // Mostra un messaggio di errore più dettagliato
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50';
+                            errorDiv.innerHTML = `
+                                <div class="flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    <span>Errore API: ${error.message}<br><small>URL: ${apiUrl}</small></span>
+                                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-red-500 hover:text-red-700">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            `;
+                            document.body.appendChild(errorDiv);
+
+                            // Auto-remove after 8 seconds (increased for debugging)
+                            setTimeout(() => {
+                                if (errorDiv.parentElement) {
+                                    errorDiv.remove();
+                                }
+                            }, 8000);
                         });
                 } else {
                     projectSelect.disabled = true;
