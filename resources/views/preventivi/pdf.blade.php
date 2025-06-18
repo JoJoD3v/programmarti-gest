@@ -13,50 +13,91 @@
             margin: 0;
             padding: 20px;
         }
-        
+
         .header {
-            text-align: center;
+            display: table;
+            width: 100%;
             margin-bottom: 30px;
             border-bottom: 2px solid #007BCE;
             padding-bottom: 20px;
         }
-        
+
+        .header-left,
+        .header-right {
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+        }
+
+        .header-left {
+            text-align: left;
+        }
+
+        .header-right {
+            text-align: right;
+            padding-left: 20px;
+        }
+
+        .company-logo {
+            max-width: 150px;
+            max-height: 80px;
+            margin-bottom: 10px;
+        }
+
         .company-name {
             font-size: 24px;
             font-weight: bold;
             color: #007BCE;
             margin-bottom: 5px;
         }
-        
+
         .company-subtitle {
             font-size: 14px;
             color: #666;
+            margin-bottom: 15px;
         }
-        
+
+        .company-info {
+            font-size: 11px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .company-info-row {
+            margin-bottom: 3px;
+        }
+
+        .company-info-label {
+            font-weight: bold;
+            color: #007BCE;
+            display: inline-block;
+            width: 80px;
+        }
+
         .quote-info {
             display: table;
             width: 100%;
             margin-bottom: 30px;
         }
-        
+
         .quote-info-left,
         .quote-info-right {
             display: table-cell;
             width: 50%;
             vertical-align: top;
         }
-        
+
         .quote-info-right {
             text-align: right;
         }
-        
+
         .quote-number {
             font-size: 18px;
             font-weight: bold;
             color: #007BCE;
             margin-bottom: 10px;
         }
-        
+
         .section-title {
             font-size: 16px;
             font-weight: bold;
@@ -65,7 +106,7 @@
             border-bottom: 1px solid #ddd;
             padding-bottom: 5px;
         }
-        
+
         .client-info,
         .project-info {
             background-color: #f8f9fa;
@@ -73,17 +114,17 @@
             margin-bottom: 20px;
             border-left: 4px solid #007BCE;
         }
-        
+
         .info-row {
             margin-bottom: 8px;
         }
-        
+
         .info-label {
             font-weight: bold;
             display: inline-block;
             width: 120px;
         }
-        
+
         .description-box {
             background-color: #f8f9fa;
             padding: 15px;
@@ -91,56 +132,60 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-        
+
         .work-items-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
-        
+
         .work-items-table th,
         .work-items-table td {
             border: 1px solid #ddd;
             padding: 12px;
             text-align: left;
         }
-        
+
         .work-items-table th {
             background-color: #007BCE;
             color: white;
             font-weight: bold;
         }
-        
+
         .work-items-table tr:nth-child(even) {
             background-color: #f8f9fa;
         }
-        
+
         .cost-column {
             text-align: right;
             font-weight: bold;
         }
-        
+
         .ai-enhanced {
-            background-color: #f3e8ff;
-            border: 1px solid #d8b4fe;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007BCE;
             border-radius: 4px;
-            padding: 10px;
+            padding: 12px;
             margin-top: 8px;
+            font-style: italic;
         }
-        
+
         .ai-enhanced-header {
             color: #007BCE;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        
+
         .total-row {
             background-color: #007BCE !important;
             color: white;
             font-weight: bold;
             font-size: 14px;
         }
-        
+
         .footer {
             margin-top: 40px;
             text-align: center;
@@ -149,7 +194,7 @@
             border-top: 1px solid #ddd;
             padding-top: 20px;
         }
-        
+
         .status-badge {
             display: inline-block;
             padding: 4px 8px;
@@ -158,7 +203,7 @@
             font-weight: bold;
             text-transform: uppercase;
         }
-        
+
         .status-draft { background-color: #f3f4f6; color: #374151; }
         .status-sent { background-color: #dbeafe; color: #1e40af; }
         .status-accepted { background-color: #dcfce7; color: #166534; }
@@ -168,8 +213,33 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="company-name">ProgrammArti</div>
-        <div class="company-subtitle">Gestionale - Preventivo</div>
+        <!-- Left Column: Logo and Company Name -->
+        <div class="header-left">
+            <img src="{{ public_path('img/logo/LOGO.jpg') }}" alt="Company Logo" class="company-logo">
+            <div class="company-name">ProgrammArti</div>
+            <div class="company-subtitle">Gestionale - Preventivo</div>
+        </div>
+
+        <!-- Right Column: Company Information -->
+        <div class="header-right">
+            <div class="company-info">
+                <div class="company-info-row">
+                    ProgrammArti S.r.l.
+                </div>
+                <div class="company-info-row">
+                    Via Roma 123, 00100 Roma (RM)
+                </div>
+                <div class="company-info-row">
+                    IT12345678901
+                </div>
+                <div class="company-info-row">
+                    info@programmarti.it
+                </div>
+                <div class="company-info-row">
+                    +39 06 1234567
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Quote Information -->
@@ -178,7 +248,7 @@
             <div class="quote-number">{{ $preventivo->quote_number }}</div>
             <div>Data: {{ $preventivo->created_at->format('d/m/Y') }}</div>
             <div>
-                Stato: 
+                Stato:
                 <span class="status-badge status-{{ $preventivo->status }}">
                     {{ $preventivo->status_label }}
                 </span>
@@ -186,6 +256,14 @@
         </div>
         <div class="quote-info-right">
             <div><strong>Totale Preventivo</strong></div>
+            @if($preventivo->vat_enabled)
+                <div style="font-size: 14px; margin-bottom: 5px;">
+                    Subtotale: €{{ number_format($preventivo->subtotal_amount, 2, ',', '.') }}
+                </div>
+                <div style="font-size: 14px; margin-bottom: 5px; color: #007BCE;">
+                    IVA ({{ $preventivo->vat_rate }}%): €{{ number_format($preventivo->vat_amount, 2, ',', '.') }}
+                </div>
+            @endif
             <div style="font-size: 20px; font-weight: bold; color: #007BCE;">
                 €{{ number_format($preventivo->total_amount, 2, ',', '.') }}
             </div>
@@ -272,8 +350,8 @@
                     </div>
                     @if($item->ai_enhanced_description)
                     <div class="ai-enhanced">
-                        <div class="ai-enhanced-header">Descrizione:</div>
-                        <div>{{ $item->ai_enhanced_description }}</div>
+                        <div class="ai-enhanced-header">Descrizione Dettagliata</div>
+                        <div>{{ preg_replace('/^.*?€[\d,.]+ ?[-–]? ?/u', '', trim($item->ai_enhanced_description)) }}</div>
                     </div>
                     @endif
                 </td>
@@ -282,6 +360,30 @@
                 </td>
             </tr>
             @endforeach
+
+            <!-- Subtotal Row -->
+            <tr style="background-color: #f8f9fa; font-weight: bold;">
+                <td style="text-align: right; font-size: 14px; padding: 8px 12px;">
+                    <strong>SUBTOTALE:</strong>
+                </td>
+                <td class="cost-column" style="font-size: 14px; padding: 8px 12px;">
+                    <strong>€{{ number_format($preventivo->subtotal_amount, 2, ',', '.') }}</strong>
+                </td>
+            </tr>
+
+            @if($preventivo->vat_enabled)
+            <!-- VAT Row -->
+            <tr style="background-color: #e3f2fd; color: #1976d2; font-weight: bold;">
+                <td style="text-align: right; font-size: 14px; padding: 8px 12px;">
+                    <strong>IVA ({{ $preventivo->vat_rate }}%):</strong>
+                </td>
+                <td class="cost-column" style="font-size: 14px; padding: 8px 12px;">
+                    <strong>€{{ number_format($preventivo->vat_amount, 2, ',', '.') }}</strong>
+                </td>
+            </tr>
+            @endif
+
+            <!-- Total Row -->
             <tr class="total-row">
                 <td style="text-align: right; font-size: 16px;">
                     <strong>TOTALE PREVENTIVO:</strong>

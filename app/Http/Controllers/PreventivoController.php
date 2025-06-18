@@ -91,6 +91,8 @@ class PreventivoController extends Controller
             'work_items' => 'required|array|min:1',
             'work_items.*.description' => 'required|string',
             'work_items.*.cost' => 'required|numeric|min:0',
+            'vat_enabled' => 'boolean',
+            'vat_rate' => 'numeric|min:0|max:100',
         ]);
 
         try {
@@ -102,6 +104,8 @@ class PreventivoController extends Controller
                 'client_id' => $validated['client_id'],
                 'project_id' => $validated['project_id'],
                 'description' => $validated['description'],
+                'vat_enabled' => $validated['vat_enabled'] ?? false,
+                'vat_rate' => $validated['vat_rate'] ?? 22.00,
                 'status' => 'draft',
             ]);
 
@@ -155,7 +159,7 @@ class PreventivoController extends Controller
         $preventivo->load(['items']);
         $clients = Client::orderBy('first_name')->get();
         $projects = Project::where('client_id', $preventivo->client_id)->get();
-        
+
         return view('preventivi.edit', compact('preventivo', 'clients', 'projects'));
     }
 
@@ -172,6 +176,8 @@ class PreventivoController extends Controller
             'work_items' => 'required|array|min:1',
             'work_items.*.description' => 'required|string',
             'work_items.*.cost' => 'required|numeric|min:0',
+            'vat_enabled' => 'boolean',
+            'vat_rate' => 'numeric|min:0|max:100',
         ]);
 
         try {
@@ -183,11 +189,13 @@ class PreventivoController extends Controller
                 'project_id' => $validated['project_id'],
                 'description' => $validated['description'],
                 'status' => $validated['status'],
+                'vat_enabled' => $validated['vat_enabled'] ?? false,
+                'vat_rate' => $validated['vat_rate'] ?? 22.00,
             ]);
 
             // Delete existing items and create new ones
             $preventivo->items()->delete();
-            
+
             foreach ($validated['work_items'] as $item) {
                 PreventivoItem::create([
                     'preventivo_id' => $preventivo->id,
@@ -238,7 +246,7 @@ class PreventivoController extends Controller
                 'error' => $e->getMessage(),
                 'preventivo_id' => $preventivo->id
             ]);
-            
+
             return back()->with('error', 'Errore durante l\'eliminazione del preventivo.');
         }
     }

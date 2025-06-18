@@ -9,7 +9,7 @@
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-semibold text-gray-900">Modifica Preventivo</h2>
-                <a href="{{ route('preventivi.show', $preventivo) }}" 
+                <a href="{{ route('preventivi.show', $preventivo) }}"
                    class="text-gray-600 hover:text-gray-900">
                     <i class="fas fa-arrow-left mr-2"></i>
                     Torna al preventivo
@@ -27,8 +27,8 @@
                     <label for="client_id" class="block text-sm font-medium text-gray-700 mb-2">
                         Cliente *
                     </label>
-                    <select id="client_id" 
-                            name="client_id" 
+                    <select id="client_id"
+                            name="client_id"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('client_id') border-red-500 @enderror"
                             required>
                         <option value="">Seleziona cliente</option>
@@ -47,8 +47,8 @@
                     <label for="project_id" class="block text-sm font-medium text-gray-700 mb-2">
                         Progetto *
                     </label>
-                    <select id="project_id" 
-                            name="project_id" 
+                    <select id="project_id"
+                            name="project_id"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('project_id') border-red-500 @enderror"
                             required>
                         <option value="">Seleziona progetto</option>
@@ -69,8 +69,8 @@
                 <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
                     Stato *
                 </label>
-                <select id="status" 
-                        name="status" 
+                <select id="status"
+                        name="status"
                         class="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('status') border-red-500 @enderror"
                         required>
                     @foreach(\App\Models\Preventivo::getStatuses() as $value => $label)
@@ -89,8 +89,8 @@
                 <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
                     Descrizione del Lavoro *
                 </label>
-                <textarea id="description" 
-                          name="description" 
+                <textarea id="description"
+                          name="description"
                           rows="4"
                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('description') border-red-500 @enderror"
                           placeholder="Descrivi il lavoro da svolgere..."
@@ -157,22 +157,49 @@
                     @endforeach
                 </div>
 
+                <!-- VAT Calculation Section -->
+                <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox"
+                               id="vatEnabled"
+                               name="vat_enabled"
+                               value="1"
+                               {{ $preventivo->vat_enabled ? 'checked' : '' }}
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="vatEnabled" class="ml-2 text-sm font-medium text-gray-700">
+                            Calcola IVA (22%)
+                        </label>
+                    </div>
+                    <input type="hidden" name="vat_rate" value="{{ $preventivo->vat_rate }}">
+                </div>
+
                 <!-- Total Amount Display -->
                 <div class="mt-4 p-4 bg-gray-50 rounded-lg">
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-medium text-gray-700">Totale:</span>
-                        <span id="totalAmount" class="text-xl font-bold text-gray-900">€{{ number_format($preventivo->total_amount, 2, ',', '.') }}</span>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-medium text-gray-700">Subtotale:</span>
+                            <span id="subtotalAmount" class="text-lg font-semibold text-gray-900">€{{ number_format($preventivo->subtotal_amount, 2, ',', '.') }}</span>
+                        </div>
+                        <div id="vatRow" class="flex justify-between items-center text-blue-600" style="display: {{ $preventivo->vat_enabled ? 'flex' : 'none' }};">
+                            <span class="text-lg font-medium">IVA ({{ $preventivo->vat_rate }}%):</span>
+                            <span id="vatAmount" class="text-lg font-semibold">€{{ number_format($preventivo->vat_amount, 2, ',', '.') }}</span>
+                        </div>
+                        <hr class="border-gray-300">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-bold text-gray-900">Totale:</span>
+                            <span id="totalAmount" class="text-xl font-bold text-gray-900">€{{ number_format($preventivo->total_amount, 2, ',', '.') }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Submit Buttons -->
             <div class="flex justify-end space-x-4">
-                <a href="{{ route('preventivi.show', $preventivo) }}" 
+                <a href="{{ route('preventivi.show', $preventivo) }}"
                    class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
                     Annulla
                 </a>
-                <button type="submit" 
+                <button type="submit"
                         class="text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
                         style="background-color: #007BCE;"
                         onmouseover="this.style.backgroundColor='#005B99'"
@@ -194,12 +221,12 @@
 
             clientSelect.addEventListener('change', function() {
                 const clientId = this.value;
-                
+
                 if (clientId) {
                     // Enable project select and show loading
                     projectSelect.disabled = false;
                     projectSelect.innerHTML = '<option value="">Caricamento progetti...</option>';
-                    
+
                     // Fetch projects for selected client
                     fetch(`/api/clients/${clientId}/projects`)
                         .then(response => response.json())
@@ -310,24 +337,44 @@
                 });
             }
 
-            // Calculate total amount
+            // Calculate total amount with VAT
             function calculateTotal() {
                 const costInputs = document.querySelectorAll('.cost-input');
-                let total = 0;
-                
+                const vatEnabled = document.getElementById('vatEnabled').checked;
+                const vatRate = parseFloat(document.querySelector('input[name="vat_rate"]').value) || 22;
+
+                let subtotal = 0;
+
                 costInputs.forEach(input => {
                     const value = parseFloat(input.value) || 0;
-                    total += value;
+                    subtotal += value;
                 });
-                
-                document.getElementById('totalAmount').textContent = 
+
+                const vatAmount = vatEnabled ? (subtotal * vatRate / 100) : 0;
+                const total = subtotal + vatAmount;
+
+                // Update display
+                document.getElementById('subtotalAmount').textContent =
+                    '€' + subtotal.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                document.getElementById('vatAmount').textContent =
+                    '€' + vatAmount.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                document.getElementById('totalAmount').textContent =
                     '€' + total.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                // Show/hide VAT row
+                const vatRow = document.getElementById('vatRow');
+                vatRow.style.display = vatEnabled ? 'flex' : 'none';
             }
 
             // Add event listeners to existing cost inputs
             document.querySelectorAll('.cost-input').forEach(input => {
                 input.addEventListener('input', calculateTotal);
             });
+
+            // Add event listener for VAT checkbox
+            document.getElementById('vatEnabled').addEventListener('change', calculateTotal);
 
             // Initialize
             updateRemoveButtons();

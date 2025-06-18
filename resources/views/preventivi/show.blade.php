@@ -29,7 +29,7 @@
             <!-- Action Buttons -->
             <div class="action-buttons-container">
                 <div class="flex flex-wrap button-gap">
-                    <a href="{{ route('preventivi.edit', $preventivo) }}" 
+                    <a href="{{ route('preventivi.edit', $preventivo) }}"
                        class="text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
                        style="background-color: #007BCE;"
                        onmouseover="this.style.backgroundColor='#005B99'"
@@ -69,7 +69,7 @@
                         </a>
                     @endif
 
-                    <a href="{{ route('preventivi.index') }}" 
+                    <a href="{{ route('preventivi.index') }}"
                        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 font-medium">
                         <i class="fas fa-arrow-left mr-2"></i>
                         Torna alla Lista
@@ -158,11 +158,12 @@
                                         {{ $item->description }}
                                     </div>
                                     @if($item->ai_enhanced_description)
-                                        <div class="text-sm text-gray-600 bg-white-50 p-3 rounded-lg border-l-4 border-blue-400">
+                                        <div class="text-sm text-gray-700 bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500 mt-3">
                                             <div class="flex items-center mb-2">
-                                                <span class="font-medium text-blue-800">Descrizione:</span>
+                                                <i class="fas fa-robot text-blue-600 mr-2"></i>
+                                                <span class="font-semibold text-blue-800 text-xs uppercase tracking-wide">Descrizione Dettagliata</span>
                                             </div>
-                                            <p class="whitespace-pre-wrap">{{ $item->ai_enhanced_description }}</p>
+                                            <p class="whitespace-pre-wrap italic leading-relaxed">{{ preg_replace('/^.*?€[\d,.]+ ?[-–]? ?/u', '', trim($item->ai_enhanced_description)) }}</p>
                                         </div>
                                     @endif
                                 </td>
@@ -173,7 +174,30 @@
                         @endforeach
                     </tbody>
                     <tfoot class="bg-gray-50">
+                        <!-- Subtotal Row -->
                         <tr>
+                            <td class="px-6 py-3 text-right text-sm font-semibold text-gray-700">
+                                Subtotale:
+                            </td>
+                            <td class="px-6 py-3 text-right text-sm font-semibold text-gray-900">
+                                €{{ number_format($preventivo->subtotal_amount, 2, ',', '.') }}
+                            </td>
+                        </tr>
+
+                        @if($preventivo->vat_enabled)
+                        <!-- VAT Row -->
+                        <tr class="bg-blue-50">
+                            <td class="px-6 py-3 text-right text-sm font-semibold text-blue-700">
+                                IVA ({{ $preventivo->vat_rate }}%):
+                            </td>
+                            <td class="px-6 py-3 text-right text-sm font-semibold text-blue-900">
+                                €{{ number_format($preventivo->vat_amount, 2, ',', '.') }}
+                            </td>
+                        </tr>
+                        @endif
+
+                        <!-- Total Row -->
+                        <tr class="bg-gray-100">
                             <td class="px-6 py-4 text-right text-lg font-bold text-gray-900">
                                 Totale:
                             </td>
