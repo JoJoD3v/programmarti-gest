@@ -227,7 +227,7 @@
                     ProgrammArti S.r.l.
                 </div>
                 <div class="company-info-row">
-                    Via Roma 123, 00100 Roma (RM)
+                    Via Val Maggia 123, 00100 Roma (RM)
                 </div>
                 <div class="company-info-row">
                     IT12345678901
