@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <form action="{{ route('preventivi.update', $preventivo) }}" method="POST" class="p-6">
+        <form action="{{ route('preventivi.update', $preventivo) }}" method="POST" class="p-6" onsubmit="debugFormSubmission(event)">
             @csrf
             @method('PUT')
 
@@ -160,6 +160,8 @@
                 <!-- VAT Calculation Section -->
                 <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <div class="flex items-center mb-3">
+                        <!-- Hidden input to ensure vat_enabled is always sent -->
+                        <input type="hidden" name="vat_enabled" value="0">
                         <input type="checkbox"
                                id="vatEnabled"
                                name="vat_enabled"
@@ -167,10 +169,16 @@
                                {{ $preventivo->vat_enabled ? 'checked' : '' }}
                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                         <label for="vatEnabled" class="ml-2 text-sm font-medium text-gray-700">
-                            Calcola IVA (22%)
+                            Calcola IVA ({{ $preventivo->vat_rate }}%)
                         </label>
                     </div>
                     <input type="hidden" name="vat_rate" value="{{ $preventivo->vat_rate }}">
+
+                    <!-- Debug info (remove in production) -->
+                    <div class="text-xs text-gray-500 mt-2">
+                        Debug: VAT Enabled = {{ $preventivo->vat_enabled ? 'true' : 'false' }},
+                        VAT Rate = {{ $preventivo->vat_rate }}%
+                    </div>
                 </div>
 
                 <!-- Total Amount Display -->
@@ -397,6 +405,16 @@
                 const vatAmount = vatEnabled ? (subtotal * vatRate / 100) : 0;
                 const total = subtotal + vatAmount;
 
+                // Debug logging
+                console.log('🧮 VAT Calculation Debug:', {
+                    subtotal: subtotal,
+                    vatEnabled: vatEnabled,
+                    vatRate: vatRate,
+                    vatAmount: vatAmount,
+                    total: total,
+                    itemsCount: costInputs.length
+                });
+
                 // Update display
                 document.getElementById('subtotalAmount').textContent =
                     '€' + subtotal.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -424,5 +442,21 @@
             updateRemoveButtons();
             calculateTotal();
         });
+
+        // Debug form submission
+        function debugFormSubmission(event) {
+            const formData = new FormData(event.target);
+            const vatEnabled = formData.get('vat_enabled');
+            const vatRate = formData.get('vat_rate');
+
+            console.log('🚀 Form Submission Debug:', {
+                vat_enabled: vatEnabled,
+                vat_rate: vatRate,
+                all_form_data: Object.fromEntries(formData.entries())
+            });
+
+            // Don't prevent submission, just log
+            return true;
+        }
     </script>
 </x-app-layout>

@@ -115,15 +115,41 @@ class Preventivo extends Model
      */
     public function calculateTotal(): void
     {
+        // Get fresh data from database
+        $this->refresh();
+
         $subtotal = $this->items()->sum('cost');
         $this->subtotal_amount = $subtotal;
+
+        // Log calculation details for debugging
+        \Log::info('Preventivo calculateTotal', [
+            'preventivo_id' => $this->id,
+            'subtotal' => $subtotal,
+            'vat_enabled' => $this->vat_enabled,
+            'vat_rate' => $this->vat_rate,
+            'items_count' => $this->items()->count()
+        ]);
 
         if ($this->vat_enabled) {
             $this->vat_amount = $subtotal * ($this->vat_rate / 100);
             $this->total_amount = $subtotal + $this->vat_amount;
+
+            \Log::info('VAT calculation applied', [
+                'preventivo_id' => $this->id,
+                'subtotal' => $subtotal,
+                'vat_rate' => $this->vat_rate,
+                'vat_amount' => $this->vat_amount,
+                'total_amount' => $this->total_amount
+            ]);
         } else {
             $this->vat_amount = 0;
             $this->total_amount = $subtotal;
+
+            \Log::info('No VAT applied', [
+                'preventivo_id' => $this->id,
+                'subtotal' => $subtotal,
+                'total_amount' => $this->total_amount
+            ]);
         }
 
         $this->save();

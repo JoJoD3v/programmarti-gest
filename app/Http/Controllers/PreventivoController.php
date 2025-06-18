@@ -183,14 +183,35 @@ class PreventivoController extends Controller
         try {
             DB::beginTransaction();
 
+            // Log VAT settings before update for debugging
+            Log::info('Preventivo update - VAT settings before', [
+                'preventivo_id' => $preventivo->id,
+                'current_vat_enabled' => $preventivo->vat_enabled,
+                'current_vat_rate' => $preventivo->vat_rate,
+                'form_vat_enabled' => $validated['vat_enabled'] ?? 'not_set',
+                'form_vat_rate' => $validated['vat_rate'] ?? 'not_set',
+                'validated_data' => $validated
+            ]);
+
+            // Properly handle VAT checkbox (ensure boolean conversion)
+            $vatEnabled = isset($validated['vat_enabled']) && $validated['vat_enabled'];
+            $vatRate = $validated['vat_rate'] ?? 22.00;
+
             // Update preventivo
             $preventivo->update([
                 'client_id' => $validated['client_id'],
                 'project_id' => $validated['project_id'],
                 'description' => $validated['description'],
                 'status' => $validated['status'],
-                'vat_enabled' => $validated['vat_enabled'] ?? false,
-                'vat_rate' => $validated['vat_rate'] ?? 22.00,
+                'vat_enabled' => $vatEnabled,
+                'vat_rate' => $vatRate,
+            ]);
+
+            // Log VAT settings after update for debugging
+            Log::info('Preventivo update - VAT settings after', [
+                'preventivo_id' => $preventivo->id,
+                'updated_vat_enabled' => $preventivo->vat_enabled,
+                'updated_vat_rate' => $preventivo->vat_rate
             ]);
 
             // Delete existing items and create new ones
@@ -204,8 +225,30 @@ class PreventivoController extends Controller
                 ]);
             }
 
+            // Log totals before recalculation
+            Log::info('Preventivo update - Totals before calculateTotal', [
+                'preventivo_id' => $preventivo->id,
+                'subtotal_amount' => $preventivo->subtotal_amount,
+                'vat_enabled' => $preventivo->vat_enabled,
+                'vat_rate' => $preventivo->vat_rate,
+                'vat_amount' => $preventivo->vat_amount,
+                'total_amount' => $preventivo->total_amount,
+                'items_count' => $preventivo->items()->count(),
+                'items_sum' => $preventivo->items()->sum('cost')
+            ]);
+
             // Calculate total
             $preventivo->calculateTotal();
+
+            // Log totals after recalculation
+            Log::info('Preventivo update - Totals after calculateTotal', [
+                'preventivo_id' => $preventivo->id,
+                'final_subtotal_amount' => $preventivo->subtotal_amount,
+                'final_vat_enabled' => $preventivo->vat_enabled,
+                'final_vat_rate' => $preventivo->vat_rate,
+                'final_vat_amount' => $preventivo->vat_amount,
+                'final_total_amount' => $preventivo->total_amount
+            ]);
 
             DB::commit();
 
@@ -324,12 +367,15 @@ class PreventivoController extends Controller
             $preventivo->update(['ai_processed' => true]);
 
             // Log totals before recalculation for debugging
-            Log::info('Totals before recalculation', [
+            Log::info('AI Enhancement - Totals before recalculation', [
                 'preventivo_id' => $preventivo->id,
                 'subtotal_amount' => $preventivo->subtotal_amount,
                 'vat_enabled' => $preventivo->vat_enabled,
+                'vat_rate' => $preventivo->vat_rate,
                 'vat_amount' => $preventivo->vat_amount,
-                'total_amount' => $preventivo->total_amount
+                'total_amount' => $preventivo->total_amount,
+                'items_count' => $preventivo->items()->count(),
+                'items_sum' => $preventivo->items()->sum('cost')
             ]);
 
             // Recalculate totals to ensure VAT is properly applied
