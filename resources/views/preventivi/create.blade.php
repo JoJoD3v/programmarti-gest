@@ -9,7 +9,7 @@
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-semibold text-gray-900">Crea Nuovo Preventivo</h2>
-                <a href="{{ route('preventivi.index') }}" 
+                <a href="{{ route('preventivi.index') }}"
                    class="text-gray-600 hover:text-gray-900">
                     <i class="fas fa-arrow-left mr-2"></i>
                     Torna alla lista
@@ -26,8 +26,8 @@
                     <label for="client_id" class="block text-sm font-medium text-gray-700 mb-2">
                         Cliente *
                     </label>
-                    <select id="client_id" 
-                            name="client_id" 
+                    <select id="client_id"
+                            name="client_id"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('client_id') border-red-500 @enderror"
                             required>
                         <option value="">Seleziona cliente</option>
@@ -46,8 +46,8 @@
                     <label for="project_id" class="block text-sm font-medium text-gray-700 mb-2">
                         Progetto *
                     </label>
-                    <select id="project_id" 
-                            name="project_id" 
+                    <select id="project_id"
+                            name="project_id"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('project_id') border-red-500 @enderror"
                             required disabled>
                         <option value="">Prima seleziona un cliente</option>
@@ -63,8 +63,8 @@
                 <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
                     Descrizione del Lavoro *
                 </label>
-                <textarea id="description" 
-                          name="description" 
+                <textarea id="description"
+                          name="description"
                           rows="4"
                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('description') border-red-500 @enderror"
                           placeholder="Descrivi il lavoro da svolgere..."
@@ -129,22 +129,48 @@
                     </div>
                 </div>
 
+                <!-- VAT Calculation Section -->
+                <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox"
+                               id="vatEnabled"
+                               name="vat_enabled"
+                               value="1"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="vatEnabled" class="ml-2 text-sm font-medium text-gray-700">
+                            Calcola IVA (22%)
+                        </label>
+                    </div>
+                    <input type="hidden" name="vat_rate" value="22">
+                </div>
+
                 <!-- Total Amount Display -->
                 <div class="mt-4 p-4 bg-gray-50 rounded-lg">
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-medium text-gray-700">Totale:</span>
-                        <span id="totalAmount" class="text-xl font-bold text-gray-900">€0.00</span>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-medium text-gray-700">Subtotale:</span>
+                            <span id="subtotalAmount" class="text-lg font-semibold text-gray-900">€0.00</span>
+                        </div>
+                        <div id="vatRow" class="flex justify-between items-center text-blue-600" style="display: none;">
+                            <span class="text-lg font-medium">IVA (22%):</span>
+                            <span id="vatAmount" class="text-lg font-semibold">€0.00</span>
+                        </div>
+                        <hr class="border-gray-300">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-bold text-gray-900">Totale:</span>
+                            <span id="totalAmount" class="text-xl font-bold text-gray-900">€0.00</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Submit Buttons -->
             <div class="flex justify-end space-x-4">
-                <a href="{{ route('preventivi.index') }}" 
+                <a href="{{ route('preventivi.index') }}"
                    class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
                     Annulla
                 </a>
-                <button type="submit" 
+                <button type="submit"
                         class="text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
                         style="background-color: #007BCE;"
                         onmouseover="this.style.backgroundColor='#005B99'"
@@ -166,15 +192,37 @@
 
             clientSelect.addEventListener('change', function() {
                 const clientId = this.value;
-                
+
                 if (clientId) {
                     // Enable project select and show loading
                     projectSelect.disabled = false;
                     projectSelect.innerHTML = '<option value="">Caricamento progetti...</option>';
-                    
+
                     // Fetch projects for selected client
-                    fetch(`/api/clients/${clientId}/projects`)
-                        .then(response => response.json())
+                    const baseUrl = '{{ route("api.clients.projects", ["client" => "__CLIENT_ID__"]) }}';
+                    const apiUrl = baseUrl.replace('__CLIENT_ID__', clientId);
+                    console.log('Base URL template:', baseUrl);
+                    console.log('Final API URL:', apiUrl);
+                    console.log('Client ID:', clientId);
+
+                    fetch(apiUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                            },
+                            credentials: 'same-origin'
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            console.log('Response headers:', response.headers);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
                         .then(data => {
                             projectSelect.innerHTML = '<option value="">Seleziona progetto</option>';
                             data.projects.forEach(project => {
@@ -186,7 +234,29 @@
                         })
                         .catch(error => {
                             console.error('Error fetching projects:', error);
+                            console.error('API URL was:', apiUrl);
                             projectSelect.innerHTML = '<option value="">Errore nel caricamento progetti</option>';
+
+                            // Mostra un messaggio di errore più dettagliato
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50';
+                            errorDiv.innerHTML = `
+                                <div class="flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    <span>Errore API: ${error.message}<br><small>URL: ${apiUrl}</small></span>
+                                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-red-500 hover:text-red-700">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            `;
+                            document.body.appendChild(errorDiv);
+
+                            // Auto-remove after 8 seconds (increased for debugging)
+                            setTimeout(() => {
+                                if (errorDiv.parentElement) {
+                                    errorDiv.remove();
+                                }
+                            }, 8000);
                         });
                 } else {
                     projectSelect.disabled = true;
@@ -278,18 +348,35 @@
                 });
             }
 
-            // Calculate total amount
+            // Calculate total amount with VAT
             function calculateTotal() {
                 const costInputs = document.querySelectorAll('.cost-input');
-                let total = 0;
-                
+                const vatEnabled = document.getElementById('vatEnabled').checked;
+                const vatRate = 22; // 22% VAT rate
+
+                let subtotal = 0;
+
                 costInputs.forEach(input => {
                     const value = parseFloat(input.value) || 0;
-                    total += value;
+                    subtotal += value;
                 });
-                
-                document.getElementById('totalAmount').textContent = 
+
+                const vatAmount = vatEnabled ? (subtotal * vatRate / 100) : 0;
+                const total = subtotal + vatAmount;
+
+                // Update display
+                document.getElementById('subtotalAmount').textContent =
+                    '€' + subtotal.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                document.getElementById('vatAmount').textContent =
+                    '€' + vatAmount.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                document.getElementById('totalAmount').textContent =
                     '€' + total.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                // Show/hide VAT row
+                const vatRow = document.getElementById('vatRow');
+                vatRow.style.display = vatEnabled ? 'flex' : 'none';
             }
 
             // Add event listeners to existing cost inputs
@@ -297,9 +384,15 @@
                 input.addEventListener('input', calculateTotal);
             });
 
+            // Add event listener for VAT checkbox
+            document.getElementById('vatEnabled').addEventListener('change', calculateTotal);
+
             // Initialize
             updateRemoveButtons();
             calculateTotal();
         });
     </script>
 </x-app-layout>
+
+
+

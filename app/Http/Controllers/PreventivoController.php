@@ -91,6 +91,8 @@ class PreventivoController extends Controller
             'work_items' => 'required|array|min:1',
             'work_items.*.description' => 'required|string',
             'work_items.*.cost' => 'required|numeric|min:0',
+            'vat_enabled' => 'boolean',
+            'vat_rate' => 'numeric|min:0|max:100',
         ]);
 
         try {
@@ -102,6 +104,8 @@ class PreventivoController extends Controller
                 'client_id' => $validated['client_id'],
                 'project_id' => $validated['project_id'],
                 'description' => $validated['description'],
+                'vat_enabled' => $validated['vat_enabled'] ?? false,
+                'vat_rate' => $validated['vat_rate'] ?? 22.00,
                 'status' => 'draft',
             ]);
 
@@ -155,7 +159,7 @@ class PreventivoController extends Controller
         $preventivo->load(['items']);
         $clients = Client::orderBy('first_name')->get();
         $projects = Project::where('client_id', $preventivo->client_id)->get();
-        
+
         return view('preventivi.edit', compact('preventivo', 'clients', 'projects'));
     }
 
@@ -172,10 +176,26 @@ class PreventivoController extends Controller
             'work_items' => 'required|array|min:1',
             'work_items.*.description' => 'required|string',
             'work_items.*.cost' => 'required|numeric|min:0',
+            'vat_enabled' => 'boolean',
+            'vat_rate' => 'numeric|min:0|max:100',
         ]);
 
         try {
             DB::beginTransaction();
+
+            // Log VAT settings before update for debugging
+            Log::info('Preventivo update - VAT settings before', [
+                'preventivo_id' => $preventivo->id,
+                'current_vat_enabled' => $preventivo->vat_enabled,
+                'current_vat_rate' => $preventivo->vat_rate,
+                'form_vat_enabled' => $validated['vat_enabled'] ?? 'not_set',
+                'form_vat_rate' => $validated['vat_rate'] ?? 'not_set',
+                'validated_data' => $validated
+            ]);
+
+            // Properly handle VAT checkbox (ensure boolean conversion)
+            $vatEnabled = isset($validated['vat_enabled']) && $validated['vat_enabled'];
+            $vatRate = $validated['vat_rate'] ?? 22.00;
 
             // Update preventivo
             $preventivo->update([
@@ -183,11 +203,20 @@ class PreventivoController extends Controller
                 'project_id' => $validated['project_id'],
                 'description' => $validated['description'],
                 'status' => $validated['status'],
+                'vat_enabled' => $vatEnabled,
+                'vat_rate' => $vatRate,
+            ]);
+
+            // Log VAT settings after update for debugging
+            Log::info('Preventivo update - VAT settings after', [
+                'preventivo_id' => $preventivo->id,
+                'updated_vat_enabled' => $preventivo->vat_enabled,
+                'updated_vat_rate' => $preventivo->vat_rate
             ]);
 
             // Delete existing items and create new ones
             $preventivo->items()->delete();
-            
+
             foreach ($validated['work_items'] as $item) {
                 PreventivoItem::create([
                     'preventivo_id' => $preventivo->id,
@@ -196,8 +225,30 @@ class PreventivoController extends Controller
                 ]);
             }
 
+            // Log totals before recalculation
+            Log::info('Preventivo update - Totals before calculateTotal', [
+                'preventivo_id' => $preventivo->id,
+                'subtotal_amount' => $preventivo->subtotal_amount,
+                'vat_enabled' => $preventivo->vat_enabled,
+                'vat_rate' => $preventivo->vat_rate,
+                'vat_amount' => $preventivo->vat_amount,
+                'total_amount' => $preventivo->total_amount,
+                'items_count' => $preventivo->items()->count(),
+                'items_sum' => $preventivo->items()->sum('cost')
+            ]);
+
             // Calculate total
             $preventivo->calculateTotal();
+
+            // Log totals after recalculation
+            Log::info('Preventivo update - Totals after calculateTotal', [
+                'preventivo_id' => $preventivo->id,
+                'final_subtotal_amount' => $preventivo->subtotal_amount,
+                'final_vat_enabled' => $preventivo->vat_enabled,
+                'final_vat_rate' => $preventivo->vat_rate,
+                'final_vat_amount' => $preventivo->vat_amount,
+                'final_total_amount' => $preventivo->total_amount
+            ]);
 
             DB::commit();
 
@@ -238,7 +289,7 @@ class PreventivoController extends Controller
                 'error' => $e->getMessage(),
                 'preventivo_id' => $preventivo->id
             ]);
-            
+
             return back()->with('error', 'Errore durante l\'eliminazione del preventivo.');
         }
     }
@@ -302,29 +353,46 @@ class PreventivoController extends Controller
             );
 
             // Update items with AI enhanced descriptions
+            // NOTE: We only update descriptions, NOT costs - so totals remain unchanged
             $updatedCount = 0;
             foreach ($enhancedItems as $index => $enhanced) {
                 if (isset($preventivo->items[$index])) {
                     $item = $preventivo->items[$index];
                     $item->update([
                         'ai_enhanced_description' => $enhanced['ai_enhanced_description']
+                        // Deliberately NOT updating 'cost' - prices remain the same
                     ]);
                     $updatedCount++;
                 }
             }
 
+            // Mark as AI processed - totals are intentionally NOT recalculated
+            // because AI enhancement only adds descriptions, costs remain unchanged
             $preventivo->update(['ai_processed' => true]);
 
             Log::info('AI enhancement completed', [
                 'preventivo_id' => $preventivo->id,
-                'items_updated' => $updatedCount
+                'items_updated' => $updatedCount,
+                'note' => 'Totals NOT recalculated - AI only updates descriptions, costs remain unchanged',
+                'preserved_subtotal_amount' => $preventivo->subtotal_amount,
+                'preserved_vat_amount' => $preventivo->vat_amount,
+                'preserved_total_amount' => $preventivo->total_amount
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => "Analisi AI completata con successo. {$updatedCount} descrizioni sono state migliorate.",
                 'items' => $enhancedItems,
-                'updated_count' => $updatedCount
+                'updated_count' => $updatedCount,
+                'note' => 'I totali rimangono invariati - l\'AI migliora solo le descrizioni',
+                'totals_unchanged' => true,
+                'current_totals' => [
+                    'subtotal_amount' => $preventivo->subtotal_amount,
+                    'vat_enabled' => $preventivo->vat_enabled,
+                    'vat_rate' => $preventivo->vat_rate,
+                    'vat_amount' => $preventivo->vat_amount,
+                    'total_amount' => $preventivo->total_amount
+                ]
             ]);
 
         } catch (\Exception $e) {

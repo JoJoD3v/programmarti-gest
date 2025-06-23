@@ -13,7 +13,7 @@ class OpenAIService
     public function __construct()
     {
         $this->apiKey = config('services.openai.api_key') ?? env('OPENAI_API_KEY');
-        
+
         if (!$this->apiKey) {
             throw new \Exception('OpenAI API key not configured');
         }
@@ -117,18 +117,20 @@ class OpenAIService
     {
         $prompt = "Progetto: {$mainDescription}\n\n";
         $prompt .= "Voci di lavoro da dettagliare:\n\n";
-        
+
         foreach ($workItems as $index => $item) {
-            $prompt .= ($index + 1) . ". {$item['description']} - €{$item['cost']}\n";
+            $prompt .= ($index + 1) . ". {$item['description']}\n";
         }
-        
+
         $prompt .= "\nPer favore, fornisci una spiegazione dettagliata e professionale per ogni voce di lavoro. ";
-        $prompt .= "Includi aspetti tecnici, benefici per il cliente e giustificazione del costo. ";
+        $prompt .= "NON ripetere il titolo o il costo della voce. ";
+        $prompt .= "Inizia direttamente con la spiegazione dettagliata. ";
+        $prompt .= "Includi aspetti tecnici, benefici per il cliente e metodologie utilizzate. ";
         $prompt .= "Formatta la risposta come:\n\n";
-        $prompt .= "VOCE 1:\n[Spiegazione dettagliata]\n\n";
-        $prompt .= "VOCE 2:\n[Spiegazione dettagliata]\n\n";
+        $prompt .= "VOCE 1:\n[Spiegazione dettagliata senza ripetere il titolo]\n\n";
+        $prompt .= "VOCE 2:\n[Spiegazione dettagliata senza ripetere il titolo]\n\n";
         $prompt .= "E così via per tutte le voci.";
-        
+
         return $prompt;
     }
 
@@ -139,20 +141,20 @@ class OpenAIService
     {
         $enhanced = [];
         $sections = preg_split('/VOCE \d+:/i', $content);
-        
+
         // Remove the first empty section
         array_shift($sections);
-        
+
         foreach ($workItems as $index => $item) {
             $enhanced[] = [
                 'description' => $item['description'],
                 'cost' => $item['cost'],
-                'ai_enhanced_description' => isset($sections[$index]) 
-                    ? trim($sections[$index]) 
+                'ai_enhanced_description' => isset($sections[$index])
+                    ? trim($sections[$index])
                     : $this->getFallbackDescription($item['description'])
             ];
         }
-        
+
         return $enhanced;
     }
 
@@ -181,26 +183,26 @@ class OpenAIService
 
         // Template-based descriptions for common service types
         if (str_contains($lowerDescription, 'sviluppo') || str_contains($lowerDescription, 'development')) {
-            return "Sviluppo professionale di {$description}. Include analisi dei requisiti, progettazione dell'architettura, implementazione con tecnologie moderne, testing completo e documentazione tecnica. Il servizio garantisce codice di alta qualità, scalabilità e manutenibilità nel tempo.";
+            return "Include analisi dei requisiti, progettazione dell'architettura, implementazione con tecnologie moderne, testing completo e documentazione tecnica. Il servizio garantisce codice di alta qualità, scalabilità e manutenibilità nel tempo.";
         }
 
         if (str_contains($lowerDescription, 'design') || str_contains($lowerDescription, 'grafica')) {
-            return "Progettazione professionale di {$description}. Comprende studio dell'user experience, creazione di mockup e prototipi, definizione della brand identity, ottimizzazione per tutti i dispositivi e consegna di tutti i file sorgente in formati standard.";
+            return "Comprende studio dell'user experience, creazione di mockup e prototipi, definizione della brand identity, ottimizzazione per tutti i dispositivi e consegna di tutti i file sorgente in formati standard.";
         }
 
         if (str_contains($lowerDescription, 'integrazione') || str_contains($lowerDescription, 'api')) {
-            return "Integrazione professionale di {$description}. Include analisi delle API esistenti, sviluppo di connettori personalizzati, testing di compatibilità, gestione degli errori e monitoraggio delle performance per garantire un funzionamento ottimale.";
+            return "Include analisi delle API esistenti, sviluppo di connettori personalizzati, testing di compatibilità, gestione degli errori e monitoraggio delle performance per garantire un funzionamento ottimale.";
         }
 
         if (str_contains($lowerDescription, 'consulenza') || str_contains($lowerDescription, 'analisi')) {
-            return "Servizio di consulenza specializzata per {$description}. Comprende analisi approfondita della situazione attuale, identificazione delle migliori soluzioni, pianificazione strategica e supporto nell'implementazione con metodologie comprovate.";
+            return "Comprende analisi approfondita della situazione attuale, identificazione delle migliori soluzioni, pianificazione strategica e supporto nell'implementazione con metodologie comprovate.";
         }
 
         if (str_contains($lowerDescription, 'manutenzione') || str_contains($lowerDescription, 'supporto')) {
-            return "Servizio di manutenzione professionale per {$description}. Include monitoraggio continuo, aggiornamenti di sicurezza, ottimizzazioni delle performance, backup automatici e supporto tecnico dedicato per garantire il massimo uptime.";
+            return "Include monitoraggio continuo, aggiornamenti di sicurezza, ottimizzazioni delle performance, backup automatici e supporto tecnico dedicato per garantire il massimo uptime.";
         }
 
         // Default professional description
-        return "Servizio professionale specializzato: {$description}. Questo servizio viene erogato seguendo le migliori pratiche del settore, utilizzando tecnologie all'avanguardia e garantendo risultati di alta qualità con supporto completo e documentazione dettagliata.";
+        return "Questo servizio viene erogato seguendo le migliori pratiche del settore, utilizzando tecnologie all'avanguardia e garantendo risultati di alta qualità con supporto completo e documentazione dettagliata.";
     }
 }

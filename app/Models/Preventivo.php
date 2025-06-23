@@ -17,6 +17,10 @@ class Preventivo extends Model
         'project_id',
         'description',
         'total_amount',
+        'vat_enabled',
+        'vat_rate',
+        'subtotal_amount',
+        'vat_amount',
         'status',
         'ai_processed',
         'pdf_path',
@@ -24,6 +28,10 @@ class Preventivo extends Model
 
     protected $casts = [
         'total_amount' => 'decimal:2',
+        'vat_enabled' => 'boolean',
+        'vat_rate' => 'decimal:2',
+        'subtotal_amount' => 'decimal:2',
+        'vat_amount' => 'decimal:2',
         'ai_processed' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -33,6 +41,10 @@ class Preventivo extends Model
         'status' => 'draft',
         'ai_processed' => false,
         'total_amount' => 0,
+        'vat_enabled' => false,
+        'vat_rate' => 22.00,
+        'subtotal_amount' => 0,
+        'vat_amount' => 0,
     ];
 
     /**
@@ -99,11 +111,47 @@ class Preventivo extends Model
     }
 
     /**
-     * Calculate total amount from items
+     * Calculate total amount from items with VAT
      */
     public function calculateTotal(): void
     {
-        $this->total_amount = $this->items()->sum('cost');
+        // Get fresh data from database
+        $this->refresh();
+
+        $subtotal = $this->items()->sum('cost');
+        $this->subtotal_amount = $subtotal;
+
+        // Log calculation details for debugging
+        \Log::info('Preventivo calculateTotal', [
+            'preventivo_id' => $this->id,
+            'subtotal' => $subtotal,
+            'vat_enabled' => $this->vat_enabled,
+            'vat_rate' => $this->vat_rate,
+            'items_count' => $this->items()->count()
+        ]);
+
+        if ($this->vat_enabled) {
+            $this->vat_amount = $subtotal * ($this->vat_rate / 100);
+            $this->total_amount = $subtotal + $this->vat_amount;
+
+            \Log::info('VAT calculation applied', [
+                'preventivo_id' => $this->id,
+                'subtotal' => $subtotal,
+                'vat_rate' => $this->vat_rate,
+                'vat_amount' => $this->vat_amount,
+                'total_amount' => $this->total_amount
+            ]);
+        } else {
+            $this->vat_amount = 0;
+            $this->total_amount = $subtotal;
+
+            \Log::info('No VAT applied', [
+                'preventivo_id' => $this->id,
+                'subtotal' => $subtotal,
+                'total_amount' => $this->total_amount
+            ]);
+        }
+
         $this->save();
     }
 
