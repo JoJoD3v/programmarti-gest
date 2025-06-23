@@ -324,7 +324,7 @@
             {!! nl2br(e($preventivo->project->description)) !!}
         </div>
         @endif
-    </div>
+    </div> 
 
     <!-- Job Description -->
     <div class="section-title">Descrizione del Lavoro</div>
