@@ -243,7 +243,7 @@
         @if($preventivo->project->description)
         <div class="info-row">
             <span class="info-label">Descrizione:</span>
-            {{ $preventivo->project->description }}
+            {!! nl2br(e($preventivo->project->description)) !!}
         </div>
         @endif
     </div>
@@ -251,7 +251,7 @@
     <!-- Job Description -->
     <div class="section-title">Descrizione del Lavoro</div>
     <div class="description-box">
-        {{ $preventivo->description }}
+        {!! nl2br(e($preventivo->description)) !!}
     </div>
 
     <!-- Work Items -->
@@ -268,12 +268,12 @@
             <tr>
                 <td>
                     <div style="font-weight: bold; margin-bottom: 8px;">
-                        {{ $item->description }}
+                        {!! nl2br(e($item->description)) !!}
                     </div>
                     @if($item->ai_enhanced_description)
                     <div class="ai-enhanced">
                         <div class="ai-enhanced-header">Descrizione:</div>
-                        <div>{{ $item->ai_enhanced_description }}</div>
+                        <div>{!! nl2br(e($item->ai_enhanced_description)) !!}</div>
                     </div>
                     @endif
                 </td>
