@@ -254,20 +254,7 @@
                 </span>
             </div>
         </div>
-        <div class="quote-info-right">
-            <div><strong>Totale Preventivo</strong></div>
-            @if($preventivo->vat_enabled)
-                <div style="font-size: 14px; margin-bottom: 5px;">
-                    Subtotale: €{{ number_format($preventivo->subtotal_amount, 2, ',', '.') }}
-                </div>
-                <div style="font-size: 14px; margin-bottom: 5px; color: #007BCE;">
-                    IVA ({{ $preventivo->vat_rate }}%): €{{ number_format($preventivo->vat_amount, 2, ',', '.') }}
-                </div>
-            @endif
-            <div style="font-size: 20px; font-weight: bold; color: #007BCE;">
-                €{{ number_format($preventivo->total_amount, 2, ',', '.') }}
-            </div>
-        </div>
+        <!-- Rimossa la sezione del totale superiore come richiesto -->
     </div>
 
     <!-- Client Information -->
@@ -350,13 +337,8 @@
                     </div>
                     @if($item->ai_enhanced_description)
                     <div class="ai-enhanced">
-<<<<<<< HEAD
-                        <div class="ai-enhanced-header">Descrizione:</div>
-                        <div>{!! nl2br(e($item->ai_enhanced_description)) !!}</div>
-=======
                         <div class="ai-enhanced-header">Descrizione Dettagliata</div>
-                        <div>{{ preg_replace('/^.*?€[\d,.]+ ?[-–]? ?/u', '', trim($item->ai_enhanced_description)) }}</div>
->>>>>>> 5b2bb3e793053c41e2a4943b5c1cccafe05bc242
+                        <div>{!! nl2br(e($item->ai_enhanced_description)) !!}</div>
                     </div>
                     @endif
                 </td>

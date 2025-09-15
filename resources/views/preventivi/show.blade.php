@@ -307,13 +307,15 @@
                             console.log('AI Enhancement completed:', data);
                             let message = '✅ Analisi AI completata! Le descrizioni sono state migliorate con successo.';
 
-                            // Show that totals are preserved (not recalculated)
-                            if (data.totals_unchanged) {
-                                message += '\n📋 I totali rimangono invariati (solo le descrizioni sono state migliorate).';
-                            } else if (data.current_totals && data.current_totals.vat_enabled) {
-                                message += `\n💰 Totale attuale con IVA (${data.current_totals.vat_rate}%): €${parseFloat(data.current_totals.total_amount).toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
+                            // Show that totals have been recalculated to ensure correct VAT display
+                            if (data.totals_recalculated) {
+                                message += '\n📋 I totali sono stati ricalcolati per garantire la corretta visualizzazione dell\'IVA.';
+                            }
+
+                            if (data.current_totals && data.current_totals.vat_enabled) {
+                                message += `\n💰 Totale con IVA (${data.current_totals.vat_rate}%): €${parseFloat(data.current_totals.total_amount).toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
                             } else if (data.current_totals) {
-                                message += `\n💰 Totale attuale: €${parseFloat(data.current_totals.total_amount).toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
+                                message += `\n💰 Totale: €${parseFloat(data.current_totals.total_amount).toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
                             }
 
                             alert(message);

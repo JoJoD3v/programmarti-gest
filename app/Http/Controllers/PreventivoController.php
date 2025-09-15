@@ -366,17 +366,20 @@ class PreventivoController extends Controller
                 }
             }
 
-            // Mark as AI processed - totals are intentionally NOT recalculated
-            // because AI enhancement only adds descriptions, costs remain unchanged
+            // Mark as AI processed and ensure totals are correctly calculated
             $preventivo->update(['ai_processed' => true]);
+
+            // Recalculate totals to ensure they are correct after AI processing
+            // This ensures VAT and totals are properly displayed
+            $preventivo->calculateTotal();
 
             Log::info('AI enhancement completed', [
                 'preventivo_id' => $preventivo->id,
                 'items_updated' => $updatedCount,
-                'note' => 'Totals NOT recalculated - AI only updates descriptions, costs remain unchanged',
-                'preserved_subtotal_amount' => $preventivo->subtotal_amount,
-                'preserved_vat_amount' => $preventivo->vat_amount,
-                'preserved_total_amount' => $preventivo->total_amount
+                'note' => 'Totals recalculated to ensure correct VAT and total display',
+                'final_subtotal_amount' => $preventivo->subtotal_amount,
+                'final_vat_amount' => $preventivo->vat_amount,
+                'final_total_amount' => $preventivo->total_amount
             ]);
 
             return response()->json([
@@ -384,8 +387,8 @@ class PreventivoController extends Controller
                 'message' => "Analisi AI completata con successo. {$updatedCount} descrizioni sono state migliorate.",
                 'items' => $enhancedItems,
                 'updated_count' => $updatedCount,
-                'note' => 'I totali rimangono invariati - l\'AI migliora solo le descrizioni',
-                'totals_unchanged' => true,
+                'note' => 'I totali sono stati ricalcolati per garantire la corretta visualizzazione dell\'IVA',
+                'totals_recalculated' => true,
                 'current_totals' => [
                     'subtotal_amount' => $preventivo->subtotal_amount,
                     'vat_enabled' => $preventivo->vat_enabled,
