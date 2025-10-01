@@ -49,7 +49,7 @@
                     <input type="text"
                            name="search"
                            value="{{ request('search') }}"
-                           placeholder="Cerca per numero preventivo, cliente o progetto..."
+                           placeholder="Cerca per numero preventivo o cliente..."
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
@@ -97,9 +97,6 @@
                             Cliente
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Progetto
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Importo Totale
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -124,9 +121,6 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">{{ $preventivo->client->full_name }}</div>
                                 <div class="text-sm text-gray-500">{{ $preventivo->client->email }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $preventivo->project->name }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 €{{ number_format($preventivo->total_amount, 2, ',', '.') }}
@@ -170,7 +164,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                                 <i class="fas fa-file-invoice text-4xl mb-4 text-gray-300"></i>
                                 <p class="text-lg">Nessun preventivo trovato</p>
                                 <p class="text-sm">Inizia creando il tuo primo preventivo</p>

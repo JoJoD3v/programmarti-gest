@@ -27,7 +27,7 @@ class PreventivoController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Preventivo::with(['client', 'project']);
+        $query = Preventivo::with(['client']);
 
         // Search functionality
         if ($request->filled('search')) {
@@ -38,9 +38,6 @@ class PreventivoController extends Controller
                   ->orWhereHas('client', function ($clientQuery) use ($search) {
                       $clientQuery->where('first_name', 'like', "%{$search}%")
                                   ->orWhere('last_name', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('project', function ($projectQuery) use ($search) {
-                      $projectQuery->where('name', 'like', "%{$search}%");
                   });
             });
         }
@@ -86,7 +83,6 @@ class PreventivoController extends Controller
     {
         $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',
-            'project_id' => 'required|exists:projects,id',
             'description' => 'required|string',
             'work_items' => 'required|array|min:1',
             'work_items.*.description' => 'required|string',
@@ -102,7 +98,6 @@ class PreventivoController extends Controller
             $preventivo = Preventivo::create([
                 'quote_number' => Preventivo::generateQuoteNumber(),
                 'client_id' => $validated['client_id'],
-                'project_id' => $validated['project_id'],
                 'description' => $validated['description'],
                 'vat_enabled' => $validated['vat_enabled'] ?? false,
                 'vat_rate' => $validated['vat_rate'] ?? 22.00,
@@ -147,7 +142,7 @@ class PreventivoController extends Controller
      */
     public function show(Preventivo $preventivo)
     {
-        $preventivo->load(['client', 'project', 'items']);
+        $preventivo->load(['client', 'items']);
         return view('preventivi.show', compact('preventivo'));
     }
 
@@ -158,9 +153,8 @@ class PreventivoController extends Controller
     {
         $preventivo->load(['items']);
         $clients = Client::orderBy('first_name')->get();
-        $projects = Project::where('client_id', $preventivo->client_id)->get();
 
-        return view('preventivi.edit', compact('preventivo', 'clients', 'projects'));
+        return view('preventivi.edit', compact('preventivo', 'clients'));
     }
 
     /**
@@ -170,7 +164,6 @@ class PreventivoController extends Controller
     {
         $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',
-            'project_id' => 'required|exists:projects,id',
             'description' => 'required|string',
             'status' => 'required|in:draft,sent,accepted,rejected',
             'work_items' => 'required|array|min:1',
@@ -200,7 +193,6 @@ class PreventivoController extends Controller
             // Update preventivo
             $preventivo->update([
                 'client_id' => $validated['client_id'],
-                'project_id' => $validated['project_id'],
                 'description' => $validated['description'],
                 'status' => $validated['status'],
                 'vat_enabled' => $vatEnabled,
@@ -294,22 +286,7 @@ class PreventivoController extends Controller
         }
     }
 
-    /**
-     * Get projects by client via AJAX
-     */
-    public function getProjectsByClient(Client $client)
-    {
-        $projects = $client->projects()->orderBy('name')->get();
 
-        return response()->json([
-            'projects' => $projects->map(function ($project) {
-                return [
-                    'id' => $project->id,
-                    'name' => $project->name,
-                ];
-            })
-        ]);
-    }
 
     /**
      * Enhance work items with AI
@@ -418,7 +395,7 @@ class PreventivoController extends Controller
     public function generatePDF(Preventivo $preventivo)
     {
         try {
-            $preventivo->load(['client', 'project', 'items']);
+            $preventivo->load(['client', 'items']);
 
             $pdf = Pdf::loadView('preventivi.pdf', compact('preventivo'));
 

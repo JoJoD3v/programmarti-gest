@@ -10,9 +10,6 @@
                 <div class="text-sm text-gray-900">{{ $preventivo->client->full_name }}</div>
                 <div class="text-sm text-gray-500">{{ $preventivo->client->email }}</div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">{{ $preventivo->project->name }}</div>
-            </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 €{{ number_format($preventivo->total_amount, 2, ',', '.') }}
             </td>
@@ -55,7 +52,7 @@
         </tr>
     @empty
         <tr>
-            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                 <i class="fas fa-file-invoice text-4xl mb-4 text-gray-300"></i>
                 <p class="text-lg">Nessun preventivo trovato</p>
                 <p class="text-sm">Inizia creando il tuo primo preventivo</p>

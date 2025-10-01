@@ -14,7 +14,6 @@ class Preventivo extends Model
     protected $fillable = [
         'quote_number',
         'client_id',
-        'project_id',
         'description',
         'total_amount',
         'vat_enabled',
@@ -161,11 +160,6 @@ class Preventivo extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
-    }
-
-    public function project()
-    {
-        return $this->belongsTo(Project::class);
     }
 
     public function items()

@@ -107,8 +107,7 @@
             padding-bottom: 5px;
         }
 
-        .client-info,
-        .project-info {
+        .client-info {
             background-color: #f8f9fa;
             padding: 15px;
             margin-bottom: 20px;
@@ -293,25 +292,6 @@
         </div>
         @endif
     </div>
-
-    <!-- Project Information -->
-    <div class="section-title">Informazioni Progetto</div>
-    <div class="project-info">
-        <div class="info-row">
-            <span class="info-label">Nome Progetto:</span>
-            {{ $preventivo->project->name }}
-        </div>
-        <div class="info-row">
-            <span class="info-label">Tipo:</span>
-            {{ ucfirst(str_replace('_', ' ', $preventivo->project->project_type)) }}
-        </div>
-        @if($preventivo->project->description)
-        <div class="info-row">
-            <span class="info-label">Descrizione:</span>
-            {!! nl2br(e($preventivo->project->description)) !!}
-        </div>
-        @endif
-    </div> 
 
     <!-- Job Description -->
     <div class="section-title">Descrizione del Lavoro</div>

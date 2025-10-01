@@ -78,52 +78,30 @@
             </div>
         </div>
 
-        <!-- Client and Project Info -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Informazioni Cliente</h3>
-                <div class="space-y-3">
-                    <div>
-                        <span class="text-sm font-medium text-gray-500">Nome:</span>
-                        <p class="text-sm text-gray-900">{{ $preventivo->client->full_name }}</p>
-                    </div>
-                    <div>
-                        <span class="text-sm font-medium text-gray-500">Email:</span>
-                        <p class="text-sm text-gray-900">{{ $preventivo->client->email }}</p>
-                    </div>
-                    @if($preventivo->client->phone)
-                        <div>
-                            <span class="text-sm font-medium text-gray-500">Telefono:</span>
-                            <p class="text-sm text-gray-900">{{ $preventivo->client->phone }}</p>
-                        </div>
-                    @endif
-                    @if($preventivo->client->address)
-                        <div>
-                            <span class="text-sm font-medium text-gray-500">Indirizzo:</span>
-                            <p class="text-sm text-gray-900">{{ $preventivo->client->address }}</p>
-                        </div>
-                    @endif
+        <!-- Client Info -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Informazioni Cliente</h3>
+            <div class="space-y-3">
+                <div>
+                    <span class="text-sm font-medium text-gray-500">Nome:</span>
+                    <p class="text-sm text-gray-900">{{ $preventivo->client->full_name }}</p>
                 </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Informazioni Progetto</h3>
-                <div class="space-y-3">
-                    <div>
-                        <span class="text-sm font-medium text-gray-500">Nome Progetto:</span>
-                        <p class="text-sm text-gray-900">{{ $preventivo->project->name }}</p>
-                    </div>
-                    <div>
-                        <span class="text-sm font-medium text-gray-500">Tipo:</span>
-                        <p class="text-sm text-gray-900">{{ ucfirst(str_replace('_', ' ', $preventivo->project->project_type)) }}</p>
-                    </div>
-                    @if($preventivo->project->description)
-                        <div>
-                            <span class="text-sm font-medium text-gray-500">Descrizione:</span>
-                            <p class="text-sm text-gray-900">{{ $preventivo->project->description }}</p>
-                        </div>
-                    @endif
+                <div>
+                    <span class="text-sm font-medium text-gray-500">Email:</span>
+                    <p class="text-sm text-gray-900">{{ $preventivo->client->email }}</p>
                 </div>
+                @if($preventivo->client->phone)
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Telefono:</span>
+                        <p class="text-sm text-gray-900">{{ $preventivo->client->phone }}</p>
+                    </div>
+                @endif
+                @if($preventivo->client->address)
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Indirizzo:</span>
+                        <p class="text-sm text-gray-900">{{ $preventivo->client->address }}</p>
+                    </div>
+                @endif
             </div>
         </div>
 
