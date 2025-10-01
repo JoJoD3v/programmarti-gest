@@ -20,25 +20,42 @@
         <form action="{{ route('preventivi.store') }}" method="POST" class="p-6">
             @csrf
 
-            <!-- Client Selection -->
-            <div class="mb-6">
-                <label for="client_id" class="block text-sm font-medium text-gray-700 mb-2">
-                    Cliente *
-                </label>
-                <select id="client_id"
-                        name="client_id"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('client_id') border-red-500 @enderror"
-                        required>
-                    <option value="">Seleziona cliente</option>
-                    @foreach($clients as $client)
-                        <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>
-                            {{ $client->full_name }} ({{ $client->email }})
-                        </option>
-                    @endforeach
-                </select>
-                @error('client_id')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
+            <!-- Client and Project Selection -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="client_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        Cliente *
+                    </label>
+                    <select id="client_id"
+                            name="client_id"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('client_id') border-red-500 @enderror"
+                            required>
+                        <option value="">Seleziona cliente</option>
+                        @foreach($clients as $client)
+                            <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>
+                                {{ $client->full_name }} ({{ $client->email }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('client_id')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="project_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        Progetto *
+                    </label>
+                    <select id="project_id"
+                            name="project_id"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('project_id') border-red-500 @enderror"
+                            required disabled>
+                        <option value="">Prima seleziona un cliente</option>
+                    </select>
+                    @error('project_id')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <!-- Job Description -->
@@ -168,6 +185,84 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let workItemIndex = 1;
+
+            // Client selection change handler
+            const clientSelect = document.getElementById('client_id');
+            const projectSelect = document.getElementById('project_id');
+
+            clientSelect.addEventListener('change', function() {
+                const clientId = this.value;
+
+                if (clientId) {
+                    // Enable project select and show loading
+                    projectSelect.disabled = false;
+                    projectSelect.innerHTML = '<option value="">Caricamento progetti...</option>';
+
+                    // Fetch projects for selected client
+                    const baseUrl = '{{ route("api.clients.projects", ["client" => "__CLIENT_ID__"]) }}';
+                    const apiUrl = baseUrl.replace('__CLIENT_ID__', clientId);
+                    console.log('Base URL template:', baseUrl);
+                    console.log('Final API URL:', apiUrl);
+                    console.log('Client ID:', clientId);
+
+                    fetch(apiUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                            },
+                            credentials: 'same-origin'
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            console.log('Response headers:', response.headers);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            projectSelect.innerHTML = '<option value="">Seleziona progetto</option>';
+                            data.projects.forEach(project => {
+                                const option = document.createElement('option');
+                                option.value = project.id;
+                                option.textContent = project.name;
+                                projectSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching projects:', error);
+                            console.error('API URL was:', apiUrl);
+                            projectSelect.innerHTML = '<option value="">Errore nel caricamento progetti</option>';
+
+                            // Mostra un messaggio di errore più dettagliato
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50';
+                            errorDiv.innerHTML = `
+                                <div class="flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    <span>Errore API: ${error.message}<br><small>URL: ${apiUrl}</small></span>
+                                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-red-500 hover:text-red-700">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            `;
+                            document.body.appendChild(errorDiv);
+
+                            // Auto-remove after 8 seconds (increased for debugging)
+                            setTimeout(() => {
+                                if (errorDiv.parentElement) {
+                                    errorDiv.remove();
+                                }
+                            }, 8000);
+                        });
+                } else {
+                    projectSelect.disabled = true;
+                    projectSelect.innerHTML = '<option value="">Prima seleziona un cliente</option>';
+                }
+            });
 
             // Add work item functionality
             const workItemsContainer = document.getElementById('workItemsContainer');
