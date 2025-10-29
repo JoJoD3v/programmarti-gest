@@ -7,19 +7,19 @@
     <style>
         body {
             font-family: 'DejaVu Sans', sans-serif;
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 11px;
+            line-height: 1.3;
             color: #333;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
         }
 
         .header {
             display: table;
             width: 100%;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             border-bottom: 2px solid #007BCE;
-            padding-bottom: 20px;
+            padding-bottom: 15px;
         }
 
         .header-left,
@@ -77,7 +77,7 @@
         .quote-info {
             display: table;
             width: 100%;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .quote-info-left,
@@ -196,17 +196,15 @@
 
         .status-badge {
             display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
             font-size: 10px;
             font-weight: bold;
             text-transform: uppercase;
         }
 
-        .status-draft { background-color: #f3f4f6; color: #374151; }
-        .status-sent { background-color: #dbeafe; color: #1e40af; }
-        .status-accepted { background-color: #dcfce7; color: #166534; }
-        .status-rejected { background-color: #fee2e2; color: #dc2626; }
+        .status-draft { background-color: #ffffff; color: #1e40af; }
+        .status-sent { background-color: #ffffff; color: #1e40af; }
+        .status-accepted { background-color: #ffffff; color: #1e40af; }
+        .status-rejected { background-color: #ffffff; color: #1e40af; }
     </style>
 </head>
 <body>
