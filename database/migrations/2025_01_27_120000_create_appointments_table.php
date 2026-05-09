@@ -20,6 +20,9 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->enum('status', ['pending', 'completed', 'cancelled', 'absent'])->default('pending');
             $table->timestamps();
+
+            $table->index('appointment_date');
+            $table->index('status');
         });
     }
 

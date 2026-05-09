@@ -9,6 +9,7 @@ use App\Models\Client;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
@@ -221,9 +222,10 @@ class PaymentController extends Controller
                             ->with('success', 'Pagamento segnato come completato.');
         } catch (\Exception $e) {
             DB::rollback();
+            Log::error('Errore completamento pagamento', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
 
             return redirect()->back()
-                            ->with('error', 'Errore durante il completamento del pagamento: ' . $e->getMessage());
+                            ->with('error', 'Si è verificato un errore durante il completamento del pagamento. Riprovare.');
         }
     }
 
@@ -256,8 +258,10 @@ class PaymentController extends Controller
                 DB::rollback();
             }
 
+            Log::error('Errore generazione fattura', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
+
             return redirect()->back()
-                            ->with('error', 'Errore durante la generazione della fattura: ' . $e->getMessage());
+                            ->with('error', 'Si è verificato un errore durante la generazione della fattura. Riprovare.');
         }
     }
 
@@ -300,8 +304,10 @@ class PaymentController extends Controller
                 DB::rollback();
             }
 
+            Log::error('Errore invio fattura', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
+
             return redirect()->back()
-                            ->with('error', 'Errore nell\'invio della fattura: ' . $e->getMessage());
+                            ->with('error', 'Si è verificato un errore durante l\'invio della fattura. Riprovare.');
         }
     }
 }

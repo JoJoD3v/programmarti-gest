@@ -54,26 +54,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('expenses', ExpenseController::class)->middleware('permission:manage expenses');
 
     // Appointment Management Routes
-    Route::resource('appointments', AppointmentController::class);
+    Route::resource('appointments', AppointmentController::class)->middleware('permission:manage projects');
     Route::get('appointments-filter', [AppointmentController::class, 'filter'])
-        ->name('appointments.filter');
+        ->name('appointments.filter')
+        ->middleware('permission:manage projects');
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])
-        ->name('appointments.update-status');
+        ->name('appointments.update-status')
+        ->middleware('permission:manage projects');
     Route::post('appointments/{appointment}/mark-completed', [AppointmentController::class, 'markCompleted'])
-        ->name('appointments.mark-completed');
+        ->name('appointments.mark-completed')
+        ->middleware('permission:manage projects');
 
 
     // Work Management Routes
-    Route::resource('works', WorkController::class);
+    Route::resource('works', WorkController::class)->middleware('permission:manage works');
     Route::patch('works/{work}/mark-completed', [WorkController::class, 'markCompleted'])
-        ->name('works.mark-completed');
+        ->name('works.mark-completed')
+        ->middleware('permission:manage works');
 
     // Preventivi (Quotes) Management Routes
     Route::resource('preventivi', PreventivoController::class)->parameters([
         'preventivi' => 'preventivo'
     ]);
     Route::get('api/clients/{client}/projects', [PreventivoController::class, 'getProjectsByClient'])
-        ->name('api.clients.projects');
+        ->name('api.clients.projects')
+        ->middleware('permission:manage projects');
     Route::post('preventivi/{preventivo}/enhance-ai', [PreventivoController::class, 'enhanceWithAI'])
         ->name('preventivi.enhance-ai');
     Route::post('preventivi/{preventivo}/generate-pdf', [PreventivoController::class, 'generatePDF'])

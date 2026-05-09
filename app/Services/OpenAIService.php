@@ -28,7 +28,6 @@ class OpenAIService
             Log::info('OpenAI Enhancement Started', [
                 'main_description' => $mainDescription,
                 'work_items_count' => count($workItems),
-                'api_key_length' => strlen($this->apiKey)
             ]);
 
             $prompt = $this->buildPrompt($mainDescription, $workItems);
@@ -40,16 +39,7 @@ class OpenAIService
                 'User-Agent' => 'ProgrammArti-Gestionale/1.0'
             ])->timeout(30);
 
-            // Add SSL verification options for development environments
-            if (app()->environment('local', 'development')) {
-                $httpClient = $httpClient->withOptions([
-                    'verify' => false, // Disable SSL verification for local development
-                    'curl' => [
-                        CURLOPT_SSL_VERIFYPEER => false,
-                        CURLOPT_SSL_VERIFYHOST => false,
-                    ]
-                ]);
-            }
+            // SSL verification is always enabled for security
 
             $requestData = [
                 'model' => 'gpt-3.5-turbo',
