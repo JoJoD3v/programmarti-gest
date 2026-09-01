@@ -213,7 +213,7 @@
         <!-- Left Column: Logo and Company Name -->
         <div class="header-left">
             <img src="{{ public_path('img/logo/LOGO.jpg') }}" alt="Company Logo" class="company-logo">
-            <div class="company-name">ProgrammArti</div>
+            <div class="company-name">ProgrAmmarti</div>
             <div class="company-subtitle">Gestionale - Preventivo</div>
         </div>
 
@@ -221,19 +221,22 @@
         <div class="header-right">
             <div class="company-info">
                 <div class="company-info-row">
-                    ProgrammArti S.r.l.
+                    ProgrAmmarti
                 </div>
                 <div class="company-info-row">
-                    Via Val Maggia 123, 00100 Roma (RM)
+                    PAF S.R.L.
                 </div>
                 <div class="company-info-row">
-                    IT12345678901
+                    Via Val Maggia 6, 00141 Roma (RM)
+                </div>
+                <div class="company-info-row">
+                    IT16583711003
                 </div>
                 <div class="company-info-row">
                     info@programmarti.it
                 </div>
                 <div class="company-info-row">
-                    +39 06 1234567
+                    +39 351.6843962
                 </div>
             </div>
         </div>
@@ -363,7 +366,7 @@
     <!-- Footer -->
     <div class="footer">
         <p>Preventivo generato automaticamente il {{ now()->format('d/m/Y H:i') }}</p>
-        <p>ProgrammArti - Gestionale | Questo documento è stato generato elettronicamente</p>
+        <p>ProgrAmmarti - Gestionale | Questo documento è stato generato elettronicamente</p>
     </div>
 </body>
 </html>
