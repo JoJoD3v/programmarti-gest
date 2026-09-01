@@ -6,7 +6,6 @@ use Illuminate\Database\Seeder;
 use App\Models\Preventivo;
 use App\Models\PreventivoItem;
 use App\Models\Client;
-use App\Models\Project;
 
 class PreventivoSeeder extends Seeder
 {
@@ -16,10 +15,9 @@ class PreventivoSeeder extends Seeder
     public function run(): void
     {
         $clients = Client::all();
-        $projects = Project::all();
 
-        if ($clients->isEmpty() || $projects->isEmpty()) {
-            $this->command->warn('No clients or projects found. Please run ClientSeeder and ProjectSeeder first.');
+        if ($clients->isEmpty()) {
+            $this->command->warn('No clients found. Please run ClientSeeder first.');
             return;
         }
 
@@ -27,7 +25,6 @@ class PreventivoSeeder extends Seeder
         $preventivi = [
             [
                 'client_id' => $clients->first()->id,
-                'project_id' => $projects->first()->id,
                 'description' => 'Sviluppo completo di un sito web aziendale con sistema di gestione contenuti, ottimizzazione SEO e integrazione social media.',
                 'status' => 'draft',
                 'items' => [
@@ -40,7 +37,6 @@ class PreventivoSeeder extends Seeder
             ],
             [
                 'client_id' => $clients->skip(1)->first()->id ?? $clients->first()->id,
-                'project_id' => $projects->skip(1)->first()->id ?? $projects->first()->id,
                 'description' => 'Creazione di un e-commerce completo con sistema di pagamento integrato, gestione inventario e dashboard amministrativa.',
                 'status' => 'sent',
                 'items' => [
@@ -53,7 +49,6 @@ class PreventivoSeeder extends Seeder
             ],
             [
                 'client_id' => $clients->skip(2)->first()->id ?? $clients->first()->id,
-                'project_id' => $projects->skip(2)->first()->id ?? $projects->first()->id,
                 'description' => 'Sviluppo di un sistema gestionale personalizzato per la gestione clienti, progetti e fatturazione.',
                 'status' => 'accepted',
                 'items' => [
@@ -76,7 +71,6 @@ class PreventivoSeeder extends Seeder
             $preventivo = Preventivo::create([
                 'quote_number' => Preventivo::generateQuoteNumber(),
                 'client_id' => $preventivoData['client_id'],
-                'project_id' => $preventivoData['project_id'],
                 'description' => $preventivoData['description'],
                 'status' => $preventivoData['status'],
                 'total_amount' => $totalAmount,

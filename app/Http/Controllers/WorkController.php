@@ -58,7 +58,6 @@ class WorkController extends Controller
                 'status' => $request->status,
                 'type' => $request->type,
                 'total_works' => $works->total(),
-                'sql' => $query->toSql()
             ]);
         }
 

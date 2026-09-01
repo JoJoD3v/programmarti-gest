@@ -133,7 +133,7 @@ class PreventivoController extends Controller
             ]);
 
             return back()->withInput()
-                        ->with('error', 'Errore durante la creazione del preventivo: ' . $e->getMessage());
+                        ->with('error', 'Si è verificato un errore durante la creazione del preventivo. Riprovare.');
         }
     }
 
@@ -257,7 +257,7 @@ class PreventivoController extends Controller
             ]);
 
             return back()->withInput()
-                        ->with('error', 'Errore durante l\'aggiornamento del preventivo: ' . $e->getMessage());
+                        ->with('error', 'Si è verificato un errore durante l\'aggiornamento del preventivo. Riprovare.');
         }
     }
 

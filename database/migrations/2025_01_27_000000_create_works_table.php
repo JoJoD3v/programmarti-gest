@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('project_id')->constrained()->onDelete('cascade');
             $table->string('name');
+            $table->text('description')->nullable();
             $table->enum('type', ['Bug', 'Miglioramenti', 'Da fare']);
             $table->foreignId('assigned_user_id')->constrained('users')->onDelete('cascade');
             $table->enum('status', ['In Sospeso', 'Completato'])->default('In Sospeso');

@@ -53,7 +53,7 @@ class UserController extends Controller
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
             $photo = $request->file('profile_photo');
-            $filename = time() . '_' . $photo->getClientOriginalName();
+            $filename = uniqid('photo_', true) . '.' . $photo->extension();
             $path = $photo->storeAs('profile_photos', $filename, 'public');
             $userData['profile_photo'] = $path;
         }
@@ -117,7 +117,7 @@ class UserController extends Controller
             }
 
             $photo = $request->file('profile_photo');
-            $filename = time() . '_' . $photo->getClientOriginalName();
+            $filename = uniqid('photo_', true) . '.' . $photo->extension();
             $path = $photo->storeAs('profile_photos', $filename, 'public');
             $updateData['profile_photo'] = $path;
         }
