@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Client extends Model
 {
@@ -35,6 +35,11 @@ class Client extends Model
     /**
      * Relationships
      */
+    public function supportTickets()
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
+
     public function projects()
     {
         return $this->hasMany(Project::class);

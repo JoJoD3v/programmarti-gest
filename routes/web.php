@@ -86,6 +86,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('preventivi/{preventivo}/download-pdf', [PreventivoController::class, 'downloadPDF'])
         ->name('preventivi.download-pdf');
 
+    // Assistenza email (ticketing)
+    require __DIR__.'/ticketing.php';
 });
 
 // Broadcast routes (outside auth middleware)

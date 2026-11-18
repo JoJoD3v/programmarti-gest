@@ -106,6 +106,43 @@
                     <span>Preventivi</span>
                 </a>
             </li>
+
+            <!-- Assistenza email (ticketing) -->
+            @can('viewAny', App\Models\SupportTicket::class)
+            @php
+                $supportLinks = [
+                    ['Ticket email', 'support-tickets.index', 'support-tickets.*', 'viewAny'],
+                    ['Risposte salvate', 'support.saved-replies.index', 'support.saved-replies.*', 'viewAny'],
+                    ['Cestino Gmail', 'support.gmail-trash.index', 'support.gmail-trash.*', 'viewAny'],
+                    ['Caselle email', 'support.mailboxes.index', 'support.mailboxes.*', 'manage'],
+                    ['Assegnazioni', 'support.assignments.index', 'support.assignments.*', 'manage'],
+                    ['Tipologie', 'support.types.index', 'support.types.*', 'manage'],
+                    ['Regole mittente', 'support.rules.index', 'support.rules.*', 'manage'],
+                    ['Info per risposte AI', 'support.knowledge.index', 'support.knowledge.*', 'manage'],
+                    ['Impostazioni', 'support.settings.edit', 'support.settings.*', 'manage'],
+                    ['Stato sistema', 'support.health', 'support.health', 'manage'],
+                ];
+                $supportOpen = request()->routeIs('support-tickets.*', 'support.*');
+            @endphp
+            <li x-data="{ open: {{ $supportOpen ? 'true' : 'false' }} }">
+                <button type="button" @click="open = ! open"
+                        class="w-full flex items-center px-4 py-3 text-white/90 rounded-lg hover:bg-white/10 hover:text-white transition-all duration-200 {{ $supportOpen ? 'bg-white/20 text-white' : '' }}">
+                    <i class="fas fa-envelope-open-text w-5 h-5 mr-3"></i>
+                    <span class="flex-1 text-left">Assistenza email</span>
+                    <i class="fas fa-chevron-down text-xs transition-transform" :class="open && 'rotate-180'"></i>
+                </button>
+                <ul x-show="open" x-cloak class="mt-1 ml-8 space-y-1">
+                    @foreach ($supportLinks as [$label, $route, $active, $ability])
+                        @can($ability, App\Models\SupportTicket::class)
+                            <li>
+                                <a href="{{ route($route) }}"
+                                   class="block px-3 py-1.5 text-sm rounded-md text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs($active) ? 'bg-white/15 text-white' : '' }}">{{ $label }}</a>
+                            </li>
+                        @endcan
+                    @endforeach
+                </ul>
+            </li>
+            @endcan
         </ul>
     </nav>
 

@@ -101,3 +101,50 @@
         line-height: 1.7;
     }
 }
+
+/* Components used by the ticketing pages (ported from Noli Gestionale) */
+@layer components {
+    .btn {
+        @apply inline-flex items-center justify-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-lg border border-transparent transition-colors cursor-pointer disabled:opacity-50;
+    }
+    .btn-sm {
+        @apply text-xs px-2.5 py-1;
+    }
+    .btn-primary {
+        @apply bg-[#007BCE] hover:bg-[#005B99] text-white;
+    }
+    .btn-secondary {
+        @apply bg-white border border-slate-300 text-slate-700 hover:bg-slate-50;
+    }
+    .btn-back {
+        @apply bg-white border-slate-200 text-slate-600 shadow-sm hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700;
+    }
+    .btn-warning {
+        @apply bg-amber-100 text-amber-700 hover:bg-amber-200;
+    }
+    .btn-danger {
+        @apply bg-red-100 text-red-700 hover:bg-red-200;
+    }
+    .btn-success {
+        @apply bg-green-100 text-green-700 hover:bg-green-200;
+    }
+    .card {
+        @apply bg-white rounded-xl border border-slate-100 shadow-sm;
+    }
+    .card-title {
+        @apply px-5 py-4 border-b border-slate-100 text-sm font-semibold text-slate-800;
+    }
+    .th {
+        @apply px-5 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider text-left;
+    }
+    .td {
+        @apply px-5 py-3;
+    }
+    .filter-input {
+        @apply py-2 px-3 text-sm bg-white border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400;
+    }
+    .link {
+        @apply text-indigo-600 hover:underline;
+    }
+}
+

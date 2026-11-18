@@ -170,6 +170,24 @@
                     @enderror
                 </div>
 
+                <!-- Assistenza email -->
+                <fieldset class="border border-gray-200 rounded-lg p-4 space-y-3">
+                    <legend class="px-2 text-sm font-medium text-gray-700">Assistenza email</legend>
+                    <input type="hidden" name="can_manage_tickets" value="0">
+                    <label class="flex items-center gap-2 text-sm text-gray-700">
+                        <input type="checkbox" name="can_manage_tickets" value="1" class="rounded border-gray-300"
+                               @checked(old('can_manage_tickets', $user->can_manage_tickets))>
+                        Gestisce i ticket email (riceve assegnazioni e può rispondere)
+                    </label>
+                    <input type="hidden" name="ticket_available" value="0">
+                    <label class="flex items-center gap-2 text-sm text-gray-700">
+                        <input type="checkbox" name="ticket_available" value="1" class="rounded border-gray-300"
+                               @checked(old('ticket_available', $user->ticket_available))>
+                        Disponibile per nuovi ticket (togli la spunta per ferie o malattia)
+                    </label>
+                    <p class="text-xs text-gray-600">Togliendo «Gestisce i ticket» i ticket aperti vengono ridistribuiti agli altri abilitati.</p>
+                </fieldset>
+
                 <!-- Action Buttons -->
                 <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
                     <a href="{{ route('users.index') }}" 

@@ -97,6 +97,39 @@
             </div>
         </div>
 
+        <!-- Support tickets -->
+        @can('viewAny', App\Models\SupportTicket::class)
+        @php
+            $clientTickets = $client->supportTickets()->latest('id')->limit(10)->get()
+                ->filter(fn ($ticket) => auth()->user()->can('view', $ticket));
+        @endphp
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-900">Ticket email</h3>
+                <a href="{{ route('support-tickets.create', ['client' => $client->id]) }}"
+                   class="px-4 py-2 text-white rounded-lg transition-colors duration-200 hover:opacity-90" style="background-color: #007BCE;">
+                    <i class="fas fa-envelope mr-2"></i>
+                    Nuovo ticket
+                </a>
+            </div>
+            <div class="p-6">
+                @if ($clientTickets->isNotEmpty())
+                    <ul class="divide-y divide-gray-100 text-sm">
+                        @foreach ($clientTickets as $ticket)
+                            <li class="py-2 flex items-center justify-between gap-4">
+                                <a href="{{ route('support-tickets.show', $ticket) }}" class="text-blue-600 hover:underline font-medium">{{ $ticket->public_id }}</a>
+                                <span class="flex-1 truncate text-gray-700">{{ $ticket->subject }}</span>
+                                <span class="text-xs text-gray-500">{{ $ticket->status->label() }} · {{ ($ticket->last_inbound_at ?? $ticket->created_at)->format('d/m/Y') }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-sm text-gray-500">Nessun ticket email per questo cliente.</p>
+                @endif
+            </div>
+        </div>
+        @endcan
+
         <!-- Projects Section -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
             <div class="p-6 border-b border-gray-200">

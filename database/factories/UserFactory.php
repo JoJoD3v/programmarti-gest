@@ -2,9 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Permission;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -32,6 +34,33 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    /**
+     * Ticketing admin: holds "manage users" (see User::isTicketingAdmin()).
+     */
+    public function amministratore(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            Permission::findOrCreate('manage users');
+            $user->givePermissionTo('manage users');
+        });
+    }
+
+    /**
+     * Indicate that the user handles support tickets.
+     */
+    public function ticketAgent(): static
+    {
+        return $this->state(fn (array $attributes) => ['can_manage_tickets' => true, 'ticket_available' => true]);
+    }
+
+    /**
+     * Indicate that the user has been deactivated.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => ['is_active' => false]);
     }
 
     /**

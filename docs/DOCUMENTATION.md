@@ -188,6 +188,35 @@ In caso di errore API, il servizio utilizza descrizioni di fallback basate su ke
 
 ---
 
+### 2.7 Assistenza email (ticket)
+
+Le email ricevute nelle caselle collegate diventano ticket, assegnati in automatico a chi gestisce i ticket. Le risposte partono dalla stessa casella in cui il cliente ha scritto. Il modulo arriva da Noli Gestionale; qui legge **più caselle** e collega i ticket ai **clienti** in anagrafica.
+
+**Tipi di casella** (Assistenza email > Caselle email):
+- **IMAP/SMTP**: qualsiasi casella dell'hosting (es. `info@programmarti.it` su `mailserver15.vhosting-it.com`, IMAP 993 SSL, SMTP 465 SSL). Thread riconosciuti dalle intestazioni e dal codice `[T-1234]` nell'oggetto. Niente etichette né cestino.
+- **Gmail**: `imap.gmail.com` / `smtp.gmail.com` con password per le app (o Google OAuth). In più: etichette `gestionale/importata` e `gestionale/scartata`, thread Gmail, cestino dei ticket chiusi.
+
+Il salvataggio di una casella avviene solo se il test di connessione IMAP e SMTP riesce. Le password sono cifrate con `APP_KEY`.
+
+**Chi vede cosa:**
+- chi ha il permesso `manage users` configura caselle, tipologie, regole, assegnazioni e impostazioni, e vede tutti i ticket;
+- chi ha la spunta «Gestisce i ticket email» nella scheda utente riceve e gestisce solo i ticket assegnati a lui.
+
+**Collegamento ai clienti:** se l'email del mittente è quella di un cliente, il ticket viene collegato. Il ticket mostra il cliente e i suoi progetti, e la scheda cliente mostra i suoi ticket. Il collegamento si può cambiare a mano dal ticket.
+
+**AI (facoltativa):** con `ANTHROPIC_API_KEY` impostata, la classificazione della tipologia e le bozze di risposta si attivano da Impostazioni assistenza.
+
+**Attivazione sul server (cPanel > Cron jobs)**, entrambi ogni minuto:
+```bash
+cd /home/UTENTE/public_html && php artisan schedule:run >> /dev/null 2>&1
+cd /home/UTENTE/public_html && php artisan queue:work --stop-when-empty --max-time=50 --tries=3 >> /dev/null 2>&1
+```
+Serve `QUEUE_CONNECTION=database`. Lo scheduler legge le caselle ogni 5 minuti; senza il worker della coda le risposte non partono. Controlla lo stato in Assistenza email > Stato sistema, oppure con `php artisan ticketing:health`.
+
+Comandi utili: `php artisan ticketing:sync-mailbox [--mailbox=ID] [--since=YYYY-MM-DD]`, `ticketing:retry-pending`, `ticketing:auto-close`, `ticketing:health`.
+
+---
+
 ## 3. Guida Utente — Preventivi
 
 ### Creazione Preventivo

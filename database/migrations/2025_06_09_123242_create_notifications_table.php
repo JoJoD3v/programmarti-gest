@@ -7,21 +7,17 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Standard Laravel database notifications (used by the ticketing alerts).
      */
     public function up(): void
     {
         Schema::create('notifications', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->uuid('id')->primary();
             $table->string('type');
-            $table->string('title');
-            $table->text('message');
-            $table->json('data')->nullable();
+            $table->morphs('notifiable');
+            $table->text('data');
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
-
-            $table->index(['user_id', 'read_at']);
         });
     }
 

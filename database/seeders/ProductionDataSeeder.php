@@ -24,7 +24,7 @@ class ProductionDataSeeder extends Seeder
     private const TABLES = [
         'users', 'roles', 'permissions', 'role_has_permissions', 'model_has_roles', 'model_has_permissions',
         'clients', 'projects', 'payments', 'expenses', 'works', 'appointments',
-        'preventivi', 'preventivo_items', 'notifications',
+        'preventivi', 'preventivo_items',
     ];
 
     public function run(): void
