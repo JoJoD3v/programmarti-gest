@@ -2,31 +2,44 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AdminUserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     *
+     * Outside the local environment only the admin is created, with a random
+     * password printed once; the demo users with known passwords are local only.
      */
     public function run(): void
     {
+        $isLocal = app()->environment('local');
+        $adminPassword = $isLocal ? 'password123' : Str::password(20);
+
         $admin = User::firstOrCreate(
             ['email' => 'admin@programmarti.com'],
             [
                 'first_name' => 'Admin',
                 'last_name' => 'User',
                 'username' => 'admin',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make($adminPassword),
             ]
         );
 
         $admin->assignRole('Admin');
 
-        // Create a developer user
+        if (! $isLocal) {
+            if ($admin->wasRecentlyCreated) {
+                $this->command?->warn("Admin password (shown once, change it after login): {$adminPassword}");
+            }
+
+            return;
+        }
+
         $developer = User::firstOrCreate(
             ['email' => 'developer@programmarti.com'],
             [
@@ -39,7 +52,6 @@ class AdminUserSeeder extends Seeder
 
         $developer->assignRole('Developer');
 
-        // Create a social media manager
         $socialMedia = User::firstOrCreate(
             ['email' => 'social@programmarti.com'],
             [

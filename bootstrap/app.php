@@ -15,10 +15,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withSchedule(function ($schedule) {
         $schedule->command('payments:check-due')
-                 ->dailyAt('09:00')
-                 ->withoutOverlapping();
+            ->dailyAt('09:00')
+            ->withoutOverlapping();
     })
     ->withMiddleware(function (Middleware $middleware) {
+        // Reject requests whose Host is not APP_URL or one of its subdomains (inactive in local/testing).
+        $middleware->trustHosts();
+
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,

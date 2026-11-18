@@ -15,6 +15,14 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             AdminUserSeeder::class,
+        ]);
+
+        // Demo data only for local development.
+        if (! app()->environment('local')) {
+            return;
+        }
+
+        $this->call([
             ClientSeeder::class,
             ProjectSeeder::class,
             ExpenseSeeder::class,
