@@ -101,6 +101,49 @@ php artisan serve
 
 Applicazione disponibile su: `http://127.0.0.1:8000`
 
+### Deploy su cPanel (collegamento a GitHub)
+
+L'app sta in `~/programmarti-gest`, **fuori da `public_html`**: il web vede solo `public/`.
+
+**1. Deploy key (una volta, Terminale cPanel):**
+```bash
+ssh-keygen -t ed25519 -C "deploy programmarti-gest" -f ~/.ssh/github_programmarti -N ""
+cat ~/.ssh/github_programmarti.pub
+```
+GitHub → repo `programmarti-gest` → Settings → Deploy keys → Add deploy key (incolla la riga, **senza** write access). Poi:
+```bash
+cat >> ~/.ssh/config <<'EOF'
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/github_programmarti
+    IdentitiesOnly yes
+EOF
+chmod 600 ~/.ssh/config ~/.ssh/github_programmarti
+ssh -T git@github.com
+```
+Se nel `~/.ssh/config` esiste già un blocco `Host github.com` (altra repo sullo stesso account), usa un alias, ad esempio `Host github-programmarti`, e clona da `git@github-programmarti:JoJoD3v/programmarti-gest.git`.
+
+**2. Clona e installa:**
+```bash
+cd ~ && git clone -b main git@github.com:JoJoD3v/programmarti-gest.git programmarti-gest
+cd programmarti-gest && cp .env.example .env   # poi compila .env (DB, APP_URL, mail, APP_KEY)
+/opt/cpanel/ea-php84/root/usr/bin/php /usr/local/bin/composer install --no-dev --optimize-autoloader
+/opt/cpanel/ea-php84/root/usr/bin/php artisan key:generate   # solo se APP_KEY è vuota
+chmod -R 775 storage bootstrap/cache
+```
+In alternativa: cPanel → Git™ Version Control → Create, Clone URL SSH, path `programmarti-gest` (aggiunge il pulsante «Update from Remote»).
+
+**3. Document root:** cPanel → Domini → dominio del gestionale → Document Root `programmarti-gest/public`. Se deve restare su `public_html`: `mv public_html public_html_old && ln -s ~/programmarti-gest/public public_html`. Non copiare mai il progetto dentro `public_html` (`.env` e `storage` diventerebbero scaricabili).
+
+**4. Aggiornamenti:** dopo ogni push su `main`:
+```bash
+bash ~/programmarti-gest/deploy-programmarti.sh
+```
+Lo script mette il sito in manutenzione, fa `git pull`, `composer install`, `migrate --force`, ricrea le cache e riavvia la coda. Variabili opzionali: `APP_DIR`, `PHP`, `COMPOSER`.
+
+Gli asset compilati (`public/build`) sono nella repo: dopo ogni modifica a viste/CSS/JS esegui `npm run build` sul PC e committa `public/build`.
+
 
 ---
 
@@ -208,8 +251,8 @@ Il salvataggio di una casella avviene solo se il test di connessione IMAP e SMTP
 
 **Attivazione sul server (cPanel > Cron jobs)**, entrambi ogni minuto:
 ```bash
-cd /home/UTENTE/public_html && php artisan schedule:run >> /dev/null 2>&1
-cd /home/UTENTE/public_html && php artisan queue:work --stop-when-empty --max-time=50 --tries=3 >> /dev/null 2>&1
+cd /home/UTENTE/programmarti-gest && /opt/cpanel/ea-php84/root/usr/bin/php artisan schedule:run >> /dev/null 2>&1
+cd /home/UTENTE/programmarti-gest && /opt/cpanel/ea-php84/root/usr/bin/php artisan queue:work --stop-when-empty --max-time=50 --tries=3 >> /dev/null 2>&1
 ```
 Serve `QUEUE_CONNECTION=database`. Lo scheduler legge le caselle ogni 5 minuti; senza il worker della coda le risposte non partono. Controlla lo stato in Assistenza email > Stato sistema, oppure con `php artisan ticketing:health`.
 
