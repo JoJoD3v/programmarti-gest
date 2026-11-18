@@ -1,6 +1,6 @@
 <!-- Topbar -->
-<header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-    <div class="flex items-center justify-between">
+<header class="h-20 bg-white shadow-sm border-b border-gray-200 px-6 flex items-center">
+    <div class="w-full flex items-center justify-between">
         <!-- Page Title / Breadcrumb -->
         <div class="flex items-center">
             <h1 class="text-xl font-semibold text-gray-900">

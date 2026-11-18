@@ -1,7 +1,7 @@
 <!-- Sidebar -->
-<div class="w-64 shadow-lg flex flex-col" style="background: linear-gradient(135deg, #002D4D 0%, #007BCE 100%);">
+<div class="w-64 flex-shrink-0 shadow-lg flex flex-col" style="background: linear-gradient(135deg, #002D4D 0%, #007BCE 100%);">
     <!-- Logo -->
-    <div class="p-6 border-b border-white/10">
+    <div class="h-20 px-6 flex items-center border-b border-white/10">
         <div class="flex items-center">
             <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3 overflow-hidden">
                 <img src="{{ asset('img/logo/LOGO.jpg') }}" alt="ProgrammArti Logo" class="w-full h-full object-contain">

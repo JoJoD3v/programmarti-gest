@@ -32,7 +32,7 @@
             @include('layouts.sidebar')
 
             <!-- Main Content Area -->
-            <div class="flex-1 flex flex-col">
+            <div class="flex-1 flex flex-col min-w-0">
                 <!-- Topbar -->
                 @include('layouts.topbar')
 
