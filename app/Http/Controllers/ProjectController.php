@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Project;
 use App\Models\Client;
+use App\Models\Project;
 use App\Models\User;
-use App\Models\Payment;
+use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
@@ -20,14 +19,14 @@ class ProjectController extends Controller
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhereHas('client', function($clientQuery) use ($search) {
-                      $clientQuery->where('first_name', 'like', "%{$search}%")
-                                  ->orWhere('last_name', 'like', "%{$search}%")
-                                  ->orWhere('email', 'like', "%{$search}%");
-                  });
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('client', function ($clientQuery) use ($search) {
+                        $clientQuery->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -75,14 +74,14 @@ class ProjectController extends Controller
         // Apply filters consistently with index method
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhereHas('client', function($clientQuery) use ($search) {
-                      $clientQuery->where('first_name', 'like', "%{$search}%")
-                                  ->orWhere('last_name', 'like', "%{$search}%")
-                                  ->orWhere('email', 'like', "%{$search}%");
-                  });
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('client', function ($clientQuery) use ($search) {
+                        $clientQuery->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -144,15 +143,13 @@ class ProjectController extends Controller
 
         $project = Project::create($validated);
 
-
-
         // Generate payments if needed
         if ($request->has('generate_payments') && $request->generate_payments) {
             $project->generatePayments();
         }
 
         return redirect()->route('projects.index')
-                        ->with('success', 'Progetto creato con successo.');
+            ->with('success', 'Progetto creato con successo.');
     }
 
     /**
@@ -161,6 +158,7 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         $project->load(['client', 'assignedUser', 'payments']);
+
         return view('projects.show', compact('project'));
     }
 
@@ -204,10 +202,8 @@ class ProjectController extends Controller
 
         $project->update($validated);
 
-
-
         return redirect()->route('projects.index')
-                        ->with('success', 'Progetto aggiornato con successo.');
+            ->with('success', 'Progetto aggiornato con successo.');
     }
 
     /**
@@ -218,7 +214,7 @@ class ProjectController extends Controller
         $project->delete();
 
         return redirect()->route('projects.index')
-                        ->with('success', 'Progetto eliminato con successo.');
+            ->with('success', 'Progetto eliminato con successo.');
     }
 
     /**
@@ -226,9 +222,15 @@ class ProjectController extends Controller
      */
     public function generatePayments(Project $project)
     {
+        // generatePayments() wipes all payments: never let it erase existing (possibly paid/invoiced) ones.
+        if ($project->payments()->exists()) {
+            return redirect()->route('projects.show', $project)
+                ->with('error', 'Il progetto ha già dei pagamenti: generazione non consentita.');
+        }
+
         $project->generatePayments();
 
         return redirect()->route('projects.show', $project)
-                        ->with('success', 'Pagamenti generati con successo.');
+            ->with('success', 'Pagamenti generati con successo.');
     }
 }

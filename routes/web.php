@@ -1,17 +1,17 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\ClientController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\ExpenseController;
-use App\Http\Controllers\WorkController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PreventivoController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\WorkController;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -65,7 +65,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('appointments.mark-completed')
         ->middleware('permission:manage projects');
 
-
     // Work Management Routes
     Route::resource('works', WorkController::class)->middleware('permission:manage works');
     Route::patch('works/{work}/mark-completed', [WorkController::class, 'markCompleted'])
@@ -74,13 +73,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Preventivi (Quotes) Management Routes
     Route::resource('preventivi', PreventivoController::class)->parameters([
-        'preventivi' => 'preventivo'
+        'preventivi' => 'preventivo',
     ]);
     Route::get('api/clients/{client}/projects', [PreventivoController::class, 'getProjectsByClient'])
         ->name('api.clients.projects')
         ->middleware('permission:manage projects');
     Route::post('preventivi/{preventivo}/enhance-ai', [PreventivoController::class, 'enhanceWithAI'])
-        ->name('preventivi.enhance-ai');
+        ->name('preventivi.enhance-ai')
+        ->middleware('throttle:ai-enhance');
     Route::post('preventivi/{preventivo}/generate-pdf', [PreventivoController::class, 'generatePDF'])
         ->name('preventivi.generate-pdf');
     Route::get('preventivi/{preventivo}/download-pdf', [PreventivoController::class, 'downloadPDF'])

@@ -22,6 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Reject requests whose Host is not APP_URL or one of its subdomains (inactive in local/testing).
         $middleware->trustHosts();
 
+        // Invalidate other sessions when the user's password changes.
+        $middleware->authenticateSessions();
+
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
