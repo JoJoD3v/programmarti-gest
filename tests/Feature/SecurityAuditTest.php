@@ -111,6 +111,19 @@ class SecurityAuditTest extends TestCase
         $this->assertLessThan(30, Http::recorded()->count());
     }
 
+    public function test_ai_enhancement_calls_openai_once_per_quote(): void
+    {
+        config(['services.openai.api_key' => 'test-key']);
+        Http::fake(['api.openai.com/*' => Http::response(['choices' => [['message' => ['content' => 'ok']]]])]);
+        $preventivo = $this->createPreventivo();
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->postJson(route('preventivi.enhance-ai', $preventivo))->assertOk();
+        $this->actingAs($user)->postJson(route('preventivi.enhance-ai', $preventivo))->assertStatus(400);
+
+        Http::assertSentCount(1);
+    }
+
     public function test_password_change_rotates_remember_token(): void
     {
         $user = User::factory()->create();
@@ -123,6 +136,18 @@ class SecurityAuditTest extends TestCase
         ])->assertSessionHasNoErrors();
 
         $this->assertNotSame($originalToken, $user->fresh()->remember_token);
+    }
+
+    private function createPreventivo(): Preventivo
+    {
+        $preventivo = Preventivo::create([
+            'quote_number' => 'PREV-TEST-'.fake()->unique()->numberBetween(1, 9999),
+            'client_id' => $this->createClient()->id,
+            'description' => 'Test',
+        ]);
+        PreventivoItem::create(['preventivo_id' => $preventivo->id, 'description' => 'Voce', 'cost' => 10]);
+
+        return $preventivo;
     }
 
     private function createClient(): Client

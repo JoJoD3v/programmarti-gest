@@ -44,19 +44,24 @@ php artisan key:generate
 
 ### Configurazione Database
 
-**Opzione A — Importazione SQL diretta (Consigliata)**
-
-```bash
-mysql -u root -p < database/install.sql
-```
-
-**Opzione B — Migrazioni Laravel**
-
 ```bash
 mysql -u root -p -e "CREATE DATABASE programmarti_gestionale CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 php artisan migrate
-php artisan db:seed
 ```
+
+Poi popola il database in uno dei due modi:
+
+- **Sviluppo locale (`APP_ENV=local`)**: `php artisan db:seed` crea ruoli, utenti demo e dati di esempio.
+- **Ripristino dati di produzione**: copia il dump phpMyAdmin in `database/data/production.sql` (cartella ignorata da git: contiene dati reali dei clienti, non committarla), poi su database vuoto:
+
+```bash
+php artisan migrate:fresh --force
+php artisan db:seed --class=ProductionDataSeeder --force
+```
+
+Il seeder importa utenti, ruoli, permessi e tutti i dati gestionali; salta cache, sessioni, code e reset token. Rifiuta di girare se la tabella `users` non è vuota. Dopo l'import elimina il dump dal server.
+
+Fuori da `local`, `php artisan db:seed` crea solo ruoli e l'utente `admin@programmarti.com` con password casuale stampata una volta.
 
 ### File .env — Configurazione Minima
 
@@ -96,16 +101,6 @@ php artisan serve
 
 Applicazione disponibile su: `http://127.0.0.1:8000`
 
-### Credenziali di Default
-
-> **Importante**: Cambiare tutte le password dopo il primo accesso.
-
-| Ruolo | Email | Password |
-|-------|-------|----------|
-| Admin | admin@programmarti.com | password |
-| Manager | manager@programmarti.com | password |
-| Developer | developer@programmarti.com | password |
-| Designer | designer@programmarti.com | password |
 
 ---
 

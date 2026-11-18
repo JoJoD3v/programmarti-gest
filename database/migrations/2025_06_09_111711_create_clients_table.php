@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('tax_code')->nullable(); // Codice Fiscale
             $table->string('vat_number')->nullable(); // Partita IVA
             $table->text('address')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

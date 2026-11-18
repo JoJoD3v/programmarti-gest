@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Preventivo;
 use App\Models\PreventivoItem;
-use App\Models\Client;
-use App\Models\Project;
 use App\Services\OpenAIService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
 class PreventivoController extends Controller
@@ -34,11 +33,11 @@ class PreventivoController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('quote_number', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhereHas('client', function ($clientQuery) use ($search) {
-                      $clientQuery->where('first_name', 'like', "%{$search}%")
-                                  ->orWhere('last_name', 'like', "%{$search}%");
-                  });
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('client', function ($clientQuery) use ($search) {
+                        $clientQuery->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -73,6 +72,7 @@ class PreventivoController extends Controller
     public function create()
     {
         $clients = Client::orderBy('first_name')->get();
+
         return view('preventivi.create', compact('clients'));
     }
 
@@ -122,18 +122,18 @@ class PreventivoController extends Controller
             DB::commit();
 
             return redirect()->route('preventivi.show', $preventivo)
-                           ->with('success', 'Preventivo creato con successo.');
+                ->with('success', 'Preventivo creato con successo.');
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error creating preventivo', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'data' => $validated
+                'data' => $validated,
             ]);
 
             return back()->withInput()
-                        ->with('error', 'Si è verificato un errore durante la creazione del preventivo. Riprovare.');
+                ->with('error', 'Si è verificato un errore durante la creazione del preventivo. Riprovare.');
         }
     }
 
@@ -143,6 +143,7 @@ class PreventivoController extends Controller
     public function show(Preventivo $preventivo)
     {
         $preventivo->load(['client', 'items']);
+
         return view('preventivi.show', compact('preventivo'));
     }
 
@@ -183,7 +184,7 @@ class PreventivoController extends Controller
                 'current_vat_rate' => $preventivo->vat_rate,
                 'form_vat_enabled' => $validated['vat_enabled'] ?? 'not_set',
                 'form_vat_rate' => $validated['vat_rate'] ?? 'not_set',
-                'validated_data' => $validated
+                'validated_data' => $validated,
             ]);
 
             // Properly handle VAT checkbox (ensure boolean conversion)
@@ -203,7 +204,7 @@ class PreventivoController extends Controller
             Log::info('Preventivo update - VAT settings after', [
                 'preventivo_id' => $preventivo->id,
                 'updated_vat_enabled' => $preventivo->vat_enabled,
-                'updated_vat_rate' => $preventivo->vat_rate
+                'updated_vat_rate' => $preventivo->vat_rate,
             ]);
 
             // Delete existing items and create new ones
@@ -226,7 +227,7 @@ class PreventivoController extends Controller
                 'vat_amount' => $preventivo->vat_amount,
                 'total_amount' => $preventivo->total_amount,
                 'items_count' => $preventivo->items()->count(),
-                'items_sum' => $preventivo->items()->sum('cost')
+                'items_sum' => $preventivo->items()->sum('cost'),
             ]);
 
             // Calculate total
@@ -239,13 +240,13 @@ class PreventivoController extends Controller
                 'final_vat_enabled' => $preventivo->vat_enabled,
                 'final_vat_rate' => $preventivo->vat_rate,
                 'final_vat_amount' => $preventivo->vat_amount,
-                'final_total_amount' => $preventivo->total_amount
+                'final_total_amount' => $preventivo->total_amount,
             ]);
 
             DB::commit();
 
             return redirect()->route('preventivi.show', $preventivo)
-                           ->with('success', 'Preventivo aggiornato con successo.');
+                ->with('success', 'Preventivo aggiornato con successo.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -253,11 +254,11 @@ class PreventivoController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'preventivo_id' => $preventivo->id,
-                'data' => $validated
+                'data' => $validated,
             ]);
 
             return back()->withInput()
-                        ->with('error', 'Si è verificato un errore durante l\'aggiornamento del preventivo. Riprovare.');
+                ->with('error', 'Si è verificato un errore durante l\'aggiornamento del preventivo. Riprovare.');
         }
     }
 
@@ -275,46 +276,50 @@ class PreventivoController extends Controller
             $preventivo->delete();
 
             return redirect()->route('preventivi.index')
-                           ->with('success', 'Preventivo eliminato con successo.');
+                ->with('success', 'Preventivo eliminato con successo.');
         } catch (\Exception $e) {
             Log::error('Error deleting preventivo', [
                 'error' => $e->getMessage(),
-                'preventivo_id' => $preventivo->id
+                'preventivo_id' => $preventivo->id,
             ]);
 
             return back()->with('error', 'Errore durante l\'eliminazione del preventivo.');
         }
     }
 
-
-
     /**
      * Enhance work items with AI
      */
     public function enhanceWithAI(Preventivo $preventivo)
     {
-        try {
-            // Check if already processed
-            if ($preventivo->ai_processed) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Questo preventivo è già stato analizzato con AI.'
-                ], 400);
-            }
+        $claimed = false;
 
+        try {
             $preventivo->load('items');
 
             // Check if there are items to enhance
             if ($preventivo->items->isEmpty()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Nessuna voce di lavoro trovata per l\'analisi AI.'
+                    'message' => 'Nessuna voce di lavoro trovata per l\'analisi AI.',
+                ], 400);
+            }
+
+            // Atomic claim: concurrent requests cannot both reach the paid OpenAI call.
+            $claimed = (bool) Preventivo::whereKey($preventivo->id)
+                ->where('ai_processed', false)
+                ->update(['ai_processed' => true]);
+
+            if (! $claimed) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Questo preventivo è già stato analizzato con AI.',
                 ], 400);
             }
 
             Log::info('Starting AI enhancement', [
                 'preventivo_id' => $preventivo->id,
-                'items_count' => $preventivo->items->count()
+                'items_count' => $preventivo->items->count(),
             ]);
 
             $workItems = $preventivo->items->map(function ($item) {
@@ -336,7 +341,7 @@ class PreventivoController extends Controller
                 if (isset($preventivo->items[$index])) {
                     $item = $preventivo->items[$index];
                     $item->update([
-                        'ai_enhanced_description' => $enhanced['ai_enhanced_description']
+                        'ai_enhanced_description' => $enhanced['ai_enhanced_description'],
                         // Deliberately NOT updating 'cost' - prices remain the same
                     ]);
                     $updatedCount++;
@@ -356,7 +361,7 @@ class PreventivoController extends Controller
                 'note' => 'Totals recalculated to ensure correct VAT and total display',
                 'final_subtotal_amount' => $preventivo->subtotal_amount,
                 'final_vat_amount' => $preventivo->vat_amount,
-                'final_total_amount' => $preventivo->total_amount
+                'final_total_amount' => $preventivo->total_amount,
             ]);
 
             return response()->json([
@@ -371,20 +376,25 @@ class PreventivoController extends Controller
                     'vat_enabled' => $preventivo->vat_enabled,
                     'vat_rate' => $preventivo->vat_rate,
                     'vat_amount' => $preventivo->vat_amount,
-                    'total_amount' => $preventivo->total_amount
-                ]
+                    'total_amount' => $preventivo->total_amount,
+                ],
             ]);
 
         } catch (\Exception $e) {
+            // Release the claim so the user can retry after a failure.
+            if ($claimed) {
+                Preventivo::whereKey($preventivo->id)->update(['ai_processed' => false]);
+            }
+
             Log::error('Error enhancing with AI', [
                 'error' => $e->getMessage(),
                 'preventivo_id' => $preventivo->id,
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Errore durante l\'analisi con AI. Riprova più tardi.'
+                'message' => 'Errore durante l\'analisi con AI. Riprova più tardi.',
             ], 500);
         }
     }
@@ -411,18 +421,18 @@ class PreventivoController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'PDF salvato con successo. Ora puoi scaricarlo.',
-                'download_url' => route('preventivi.download-pdf', $preventivo)
+                'download_url' => route('preventivi.download-pdf', $preventivo),
             ]);
 
         } catch (\Exception $e) {
             Log::error('Error generating PDF', [
                 'error' => $e->getMessage(),
-                'preventivo_id' => $preventivo->id
+                'preventivo_id' => $preventivo->id,
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Errore durante il salvataggio del PDF. Riprova più tardi.'
+                'message' => 'Errore durante il salvataggio del PDF. Riprova più tardi.',
             ], 500);
         }
     }
@@ -432,7 +442,7 @@ class PreventivoController extends Controller
      */
     public function downloadPDF(Preventivo $preventivo)
     {
-        if (!$preventivo->pdf_path || !Storage::exists($preventivo->pdf_path)) {
+        if (! $preventivo->pdf_path || ! Storage::exists($preventivo->pdf_path)) {
             return back()->with('error', 'PDF non trovato.');
         }
 
