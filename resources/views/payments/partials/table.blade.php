@@ -1,6 +1,6 @@
 <tbody class="bg-white divide-y divide-gray-200">
     @forelse($payments as $payment)
-        <tr class="hover:bg-gray-50 {{ $payment->isOverdue() ? 'bg-red-50' : '' }}">
+        <tr data-href="{{ route('payments.show', $payment) }}" class="hover:bg-gray-50 {{ $payment->isOverdue() ? 'bg-red-50' : '' }}">
             <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm font-medium text-gray-900">
                     {{ $payment->project->name }}
@@ -70,19 +70,19 @@
                             @csrf
                             @method('PATCH')
                             <button type="submit"
-                                    class="text-green-600 hover:text-green-900"
+                                    class="btn-act btn-act-green"
                                     title="Segna come completato">
                                 <i class="fas fa-check"></i>
                             </button>
                         </form>
                     @endif
                     <a href="{{ route('payments.show', $payment) }}"
-                       class="text-blue-600 hover:text-blue-900"
+                       class="btn-act btn-act-blue"
                        title="Visualizza dettagli">
                         <i class="fas fa-eye"></i>
                     </a>
                     <a href="{{ route('payments.edit', $payment) }}"
-                       class="text-yellow-600 hover:text-yellow-900"
+                       class="btn-act btn-act-yellow"
                        title="Modifica">
                         <i class="fas fa-edit"></i>
                     </a>
@@ -93,7 +93,7 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit"
-                                class="text-red-600 hover:text-red-900"
+                                class="btn-act btn-act-red"
                                 title="Elimina">
                             <i class="fas fa-trash"></i>
                         </button>

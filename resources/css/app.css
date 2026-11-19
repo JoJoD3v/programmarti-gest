@@ -146,5 +146,25 @@
     .link {
         @apply text-indigo-600 hover:underline;
     }
+
+    /* Row actions in the tables: small filled, raised buttons */
+    .btn-act {
+        @apply inline-flex items-center justify-center w-8 h-8 rounded-md text-sm text-white shadow-md transition hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-1;
+    }
+    .btn-act-blue {
+        @apply bg-[#007BCE] hover:bg-[#005B99] focus:ring-[#007BCE];
+    }
+    .btn-act-yellow {
+        @apply bg-amber-500 hover:bg-amber-600 focus:ring-amber-500;
+    }
+    .btn-act-red {
+        @apply bg-red-600 hover:bg-red-700 focus:ring-red-600;
+    }
+    .btn-act-green {
+        @apply bg-green-600 hover:bg-green-700 focus:ring-green-600;
+    }
+    tr[data-href] {
+        @apply cursor-pointer;
+    }
 }
 

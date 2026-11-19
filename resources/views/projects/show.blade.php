@@ -207,7 +207,7 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($project->payments->sortBy('due_date') as $payment)
-                                    <tr class="hover:bg-gray-50">
+                                    <tr data-href="{{ route('payments.show', $payment) }}" class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                                                 {{ App\Models\Payment::getPaymentTypes()[$payment->payment_type] ?? $payment->payment_type }}
@@ -247,7 +247,7 @@
                                                         @csrf
                                                         @method('PATCH')
                                                         <button type="submit" 
-                                                                class="text-green-600 hover:text-green-900"
+                                                                class="btn-act btn-act-green"
                                                                 title="Segna come completato">
                                                             <i class="fas fa-check"></i>
                                                         </button>
@@ -255,7 +255,7 @@
                                                     @endcan
                                                 @endif
                                                 <a href="{{ route('payments.show', $payment) }}" 
-                                                   class="text-blue-600 hover:text-blue-900">
+                                                   class="btn-act btn-act-blue">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                             </div>

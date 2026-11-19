@@ -1,6 +1,6 @@
 <tbody class="bg-white divide-y divide-gray-200">
     @forelse($preventivi as $preventivo)
-        <tr class="hover:bg-gray-50">
+        <tr data-href="{{ route('preventivi.show', $preventivo) }}" class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm font-medium text-gray-900">
                     {{ $preventivo->quote_number }}
@@ -24,16 +24,16 @@
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex justify-end space-x-2">
                     <a href="{{ route('preventivi.show', $preventivo) }}" 
-                       class="text-blue-600 hover:text-blue-900" title="Visualizza">
+                       class="btn-act btn-act-blue" title="Visualizza">
                         <i class="fas fa-eye"></i>
                     </a>
                     <a href="{{ route('preventivi.edit', $preventivo) }}" 
-                       class="text-yellow-600 hover:text-yellow-900" title="Modifica">
+                       class="btn-act btn-act-yellow" title="Modifica">
                         <i class="fas fa-edit"></i>
                     </a>
                     @if($preventivo->pdf_path)
                         <a href="{{ route('preventivi.download-pdf', $preventivo) }}" 
-                           class="text-green-600 hover:text-green-900" title="Scarica PDF">
+                           class="btn-act btn-act-green" title="Scarica PDF">
                             <i class="fas fa-download"></i>
                         </a>
                     @endif
@@ -43,7 +43,7 @@
                           onsubmit="return confirm('Sei sicuro di voler eliminare questo preventivo?')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:text-red-900" title="Elimina">
+                        <button type="submit" class="btn-act btn-act-red" title="Elimina">
                             <i class="fas fa-trash"></i>
                         </button>
                     </form>

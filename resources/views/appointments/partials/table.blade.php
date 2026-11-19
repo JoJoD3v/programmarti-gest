@@ -28,7 +28,7 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
             @forelse($appointments as $appointment)
-                <tr class="hover:bg-gray-50">
+                <tr data-href="{{ route('appointments.edit', $appointment) }}" class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900">
                             {{ $appointment->client->full_name }}
@@ -91,7 +91,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex justify-end space-x-2">
                             <a href="{{ route('appointments.edit', $appointment) }}" 
-                               class="text-blue-600 hover:text-blue-900" title="Modifica">
+                               class="btn-act btn-act-blue" title="Modifica">
                                 <i class="fas fa-edit"></i>
                             </a>
                             <form action="{{ route('appointments.destroy', $appointment) }}" 
@@ -101,7 +101,7 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" 
-                                        class="text-red-600 hover:text-red-900" title="Elimina">
+                                        class="btn-act btn-act-red" title="Elimina">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>

@@ -48,7 +48,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($users as $user)
-                        <tr class="hover:bg-gray-50">
+                        <tr data-href="{{ route('users.show', $user) }}" class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3" style="background-color: #007BCE;">
@@ -84,11 +84,11 @@
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-2">
                                     <a href="{{ route('users.show', $user) }}" 
-                                       class="text-blue-600 hover:text-blue-900">
+                                       class="btn-act btn-act-blue">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     <a href="{{ route('users.edit', $user) }}" 
-                                       class="text-yellow-600 hover:text-yellow-900">
+                                       class="btn-act btn-act-yellow">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     @if($user->id !== auth()->id())
@@ -98,7 +98,7 @@
                                               onsubmit="return confirm('Sei sicuro di voler eliminare questo utente?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">
+                                            <button type="submit" class="btn-act btn-act-red">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>

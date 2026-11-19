@@ -1,6 +1,6 @@
 <tbody class="bg-white divide-y divide-gray-200">
     @forelse($projects as $project)
-        <tr class="hover:bg-gray-50">
+        <tr data-href="{{ route('projects.show', $project) }}" class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap">
                 <div>
                     <div class="text-sm font-medium text-gray-900">
@@ -47,11 +47,11 @@
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex justify-end space-x-2">
                     <a href="{{ route('projects.show', $project) }}" 
-                       class="text-blue-600 hover:text-blue-900">
+                       class="btn-act btn-act-blue">
                         <i class="fas fa-eye"></i>
                     </a>
                     <a href="{{ route('projects.edit', $project) }}" 
-                       class="text-yellow-600 hover:text-yellow-900">
+                       class="btn-act btn-act-yellow">
                         <i class="fas fa-edit"></i>
                     </a>
                     <form action="{{ route('projects.destroy', $project) }}" 
@@ -60,7 +60,7 @@
                           onsubmit="return confirm('Sei sicuro di voler eliminare questo progetto?')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:text-red-900">
+                        <button type="submit" class="btn-act btn-act-red">
                             <i class="fas fa-trash"></i>
                         </button>
                     </form>
