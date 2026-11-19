@@ -20,7 +20,7 @@ class SupportSettingsController extends Controller
 
         return view('support.settings.edit', [
             'settings' => $settings->all(),
-            'users' => User::query()->ticketingEnabled()->orWhere(fn ($q) => $q->active()->whereIn('role', ['amministratore', 'sviluppatore']))->orderBy('last_name')->get(),
+            'users' => User::query()->ticketingEnabled()->orWhere(fn ($q) => $q->active()->permission('manage users'))->orderBy('last_name')->get(),
             'logs' => TicketingSettingLog::query()->with('user')->latest('id')->limit(20)->get(),
             'agents' => User::query()->ticketingEnabled()->orderBy('last_name')->get(),
         ]);
