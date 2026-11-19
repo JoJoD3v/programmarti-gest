@@ -1,12 +1,12 @@
 #!/bin/bash
 # Deploy manuale su cPanel. Uso: bash ~/programmarti-gest/deploy-programmarti.sh
-# Se la repo non e' in ~/programmarti-gest: APP_DIR=/home/CPUSER/altra-cartella bash deploy-programmarti.sh
+# Di default lavora nella cartella dello script; altrimenti: APP_DIR=/percorso bash deploy-programmarti.sh
 # Gli asset (public/build) sono committati: sull'hosting non serve Node.
 set -e
 
 PHP="${PHP:-/opt/cpanel/ea-php84/root/usr/bin/php}"
 COMPOSER="${COMPOSER:-/usr/local/bin/composer}"
-APP_DIR="${APP_DIR:-$HOME/programmarti-gest}"
+APP_DIR="${APP_DIR:-$(cd "$(dirname "$0")" && pwd)}"
 
 cd "$APP_DIR"
 
