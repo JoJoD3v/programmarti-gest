@@ -109,9 +109,15 @@
 
             <!-- Assistenza email (ticketing) -->
             @can('viewAny', App\Models\SupportTicket::class)
+            <li>
+                <a href="{{ route('support-tickets.index') }}"
+                   class="flex items-center px-4 py-3 text-white/90 rounded-lg hover:bg-white/10 hover:text-white transition-all duration-200 {{ request()->routeIs('support-tickets.*') ? 'bg-white/20 text-white' : '' }}">
+                    <i class="fas fa-ticket-alt w-5 h-5 mr-3"></i>
+                    <span>Ticket email</span>
+                </a>
+            </li>
             @php
                 $supportLinks = [
-                    ['Ticket email', 'support-tickets.index', 'support-tickets.*', 'viewAny'],
                     ['Risposte salvate', 'support.saved-replies.index', 'support.saved-replies.*', 'viewAny'],
                     ['Cestino Gmail', 'support.gmail-trash.index', 'support.gmail-trash.*', 'viewAny'],
                     ['Caselle email', 'support.mailboxes.index', 'support.mailboxes.*', 'manage'],
@@ -122,7 +128,7 @@
                     ['Impostazioni', 'support.settings.edit', 'support.settings.*', 'manage'],
                     ['Stato sistema', 'support.health', 'support.health', 'manage'],
                 ];
-                $supportOpen = request()->routeIs('support-tickets.*', 'support.*');
+                $supportOpen = request()->routeIs('support.*');
             @endphp
             <li x-data="{ open: {{ $supportOpen ? 'true' : 'false' }} }">
                 <button type="button" @click="open = ! open"
