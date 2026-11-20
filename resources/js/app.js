@@ -10,7 +10,7 @@ Alpine.start();
 document.addEventListener('click', (event) => {
     const row = event.target.closest('tr[data-href]');
 
-    if (!row || event.target.closest('a, button, input, select, textarea, label, form') || window.getSelection().toString()) {
+    if (!row || event.target.closest('a, button, input, select, textarea, label') || window.getSelection().toString()) {
         return;
     }
 
