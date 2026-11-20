@@ -87,7 +87,7 @@ class SupportTicketCreatePrintTest extends TestCase
 
         $sent = $this->mailbox()->lastSent();
         $this->assertSame('mario@example.com', $sent->to);
-        $this->assertSame("Re: Il suo preventivo [{$ticket->public_id}]", $sent->subject);
+        $this->assertSame('Il suo preventivo', $sent->subject);
     }
 
     public function test_new_ticket_is_sent_from_the_chosen_mailbox_and_linked_to_the_client(): void

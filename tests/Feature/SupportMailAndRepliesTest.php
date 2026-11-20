@@ -101,8 +101,8 @@ class SupportMailAndRepliesTest extends TestCase
 
     public function test_subject_token_is_not_duplicated(): void
     {
-        $this->assertSame('Re: Ordine in ritardo [T-1042]', TicketSubject::forReply('Ordine in ritardo', 'T-1042'));
-        $this->assertSame('Re: Ordine in ritardo [T-1042]', TicketSubject::forReply('Re: RE: Ordine in ritardo [T-1042]', 'T-1042'));
+        $this->assertSame('Ordine in ritardo', TicketSubject::forReply('Ordine in ritardo', 'T-1042'));
+        $this->assertSame('Ordine in ritardo', TicketSubject::forReply('Re: RE: Ordine in ritardo [T-1042]', 'T-1042'));
     }
 
     public function test_reply_goes_out_in_the_thread_to_the_customer_and_moves_the_ticket_to_pending(): void
@@ -117,7 +117,7 @@ class SupportMailAndRepliesTest extends TestCase
 
         $sent = $this->mailbox()->lastSent();
         $this->assertSame('cliente@example.com', $sent->to);
-        $this->assertSame("Re: Dov'è l'ordine? [{$ticket->public_id}]", $sent->subject);
+        $this->assertSame("Dov'è l'ordine?", $sent->subject);
         $this->assertSame('<in1@cliente.example>', $sent->inReplyTo);
         $this->assertSame(['<root@cliente.example>', '<in1@cliente.example>'], $sent->references);
         $this->assertStringEndsWith('@'.Str::after($this->defaultMailbox->address, '@').'>', $sent->messageId);

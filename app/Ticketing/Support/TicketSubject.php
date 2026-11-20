@@ -5,7 +5,8 @@ namespace App\Ticketing\Support;
 class TicketSubject
 {
     /**
-     * "Re: {original} [T-1042]" without stacking "Re:" or repeating the token.
+     * The original subject only: reply prefixes and the [T-1042] token are stripped.
+     * Threading relies on the Gmail thread and the In-Reply-To/References headers.
      */
     public static function forReply(?string $original, string $publicId): string
     {
@@ -14,6 +15,6 @@ class TicketSubject
         $subject = trim(str_replace("[{$publicId}]", '', $subject));
         $subject = preg_replace('/\s{2,}/', ' ', $subject) ?? $subject;
 
-        return trim("Re: {$subject} [{$publicId}]");
+        return trim($subject);
     }
 }
